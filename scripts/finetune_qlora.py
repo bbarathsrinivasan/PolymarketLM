@@ -1,0 +1,431 @@
+"""
+Fine-tune an LLM with QLoRA (PEFT) using the prepared JSONL dataset.
+
+Expected dataset: data/fine_tune.jsonl
+Saves adapters/checkpoints under models/checkpoints/
+
+This script:
+- Loads Mistral-7B-Instruct in 4-bit mode using BitsAndBytes
+- Configures LoRA adapters using PEFT
+- Formats dataset into Mistral Instruct format
+- Trains the model and saves LoRA adapters
+"""
+
+import os
+import argparse
+import json
+import torch
+from pathlib import Path
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+    TrainingArguments,
+    Trainer,
+    DataCollatorForLanguageModeling
+)
+from peft import (
+    LoraConfig,
+    get_peft_model,
+    prepare_model_for_kbit_training,
+    TaskType
+)
+from datasets import load_dataset
+import logging
+import yaml
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+def format_mistral_prompt(example):
+    """Format example into Mistral Instruct format."""
+    user_prompt = example["instruction"]
+    if example.get("input"):
+        user_prompt += "\n" + example["input"]
+    
+    # Mistral instruct format: <s>[INST] prompt [/INST] response </s>
+    formatted = f"<s>[INST] {user_prompt.strip()} [/INST] {example['output'].strip()} </s>"
+    return {"text": formatted}
+
+
+def load_and_prepare_dataset(dataset_path, max_samples=None, test_split=0.1):
+    """Load JSONL dataset and format for training."""
+    logger.info(f"Loading dataset from {dataset_path}")
+    
+    dataset = load_dataset("json", data_files=dataset_path, split="train")
+    
+    if max_samples:
+        logger.info(f"Limiting dataset to {max_samples} samples for testing")
+        dataset = dataset.select(range(min(max_samples, len(dataset))))
+    
+    # Format examples into Mistral prompt format
+    dataset = dataset.map(format_mistral_prompt, remove_columns=["instruction", "input", "output"])
+    
+    # Split into train and validation if needed
+    if test_split > 0 and len(dataset) > 100:
+        dataset = dataset.train_test_split(test_size=test_split, seed=42)
+        train_dataset = dataset["train"]
+        eval_dataset = dataset["test"]
+        logger.info(f"Train samples: {len(train_dataset)}, Eval samples: {len(eval_dataset)}")
+        return train_dataset, eval_dataset
+    else:
+        logger.info(f"Using all {len(dataset)} samples for training (no validation split)")
+        return dataset, None
+
+
+def load_model_and_tokenizer(model_name, use_4bit=True):
+    """Load model in 4-bit mode and tokenizer."""
+    logger.info(f"Loading model: {model_name}")
+    
+    if use_4bit:
+        # Configure 4-bit quantization
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_compute_dtype=torch.bfloat16
+        )
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            quantization_config=bnb_config,
+            device_map="auto",
+            trust_remote_code=True
+        )
+    else:
+        # Load in full precision (for testing without quantization)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+            trust_remote_code=True
+        )
+    
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    
+    # Set pad token if not present
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+    
+    return model, tokenizer
+
+
+def setup_peft_model(model, lora_r=32, lora_alpha=32, lora_dropout=0.1):
+    """Configure and apply LoRA to the model."""
+    logger.info("Setting up PEFT (LoRA) configuration")
+    
+    # Enable gradient checkpointing for memory efficiency
+    model.gradient_checkpointing_enable()
+    
+    # Prepare model for k-bit training
+    model = prepare_model_for_kbit_training(model)
+    
+    # Configure LoRA
+    lora_config = LoraConfig(
+        task_type=TaskType.CAUSAL_LM,
+        r=lora_r,
+        lora_alpha=lora_alpha,
+        lora_dropout=lora_dropout,
+        target_modules=[
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj"
+        ],
+        bias="none"
+    )
+    
+    # Apply LoRA
+    model = get_peft_model(model, lora_config)
+    
+    # Print trainable parameters
+    model.print_trainable_parameters()
+    
+    return model
+
+
+def create_data_collator(tokenizer, max_length=512):
+    """Create data collator for training."""
+    return DataCollatorForLanguageModeling(
+        tokenizer=tokenizer,
+        mlm=False,  # Causal LM, not masked LM
+    )
+
+
+def tokenize_dataset(examples, tokenizer, max_length=512):
+    """Tokenize dataset examples."""
+    return tokenizer(
+        examples["text"],
+        truncation=True,
+        max_length=max_length,
+        padding=False,
+    )
+
+
+def load_config(config_path):
+    """Load YAML configuration file."""
+    config_file = Path(config_path)
+    if not config_file.exists():
+        logger.warning(f"Config file not found at {config_file}. Using defaults/CLI arguments.")
+        return {}
+    logger.info(f"Loading config from {config_file}")
+    with open(config_file, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Fine-tune Mistral-7B with QLoRA")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="config/training_config.yaml",
+        help="Path to YAML config file with training arguments"
+    )
+    parser.add_argument(
+        "--dataset_path",
+        type=str,
+        default="data/fine_tune.jsonl",
+        help="Path to JSONL dataset file"
+    )
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        default="mistralai/Mistral-7B-Instruct-v0.2",
+        help="Hugging Face model name"
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        default="models/checkpoints",
+        help="Output directory for checkpoints and adapters"
+    )
+    parser.add_argument(
+        "--max_samples",
+        type=int,
+        default=None,
+        help="Limit dataset size for testing (e.g., 50 for quick test)"
+    )
+    parser.add_argument(
+        "--num_epochs",
+        type=int,
+        default=3,
+        help="Number of training epochs"
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=4,
+        help="Per device batch size"
+    )
+    parser.add_argument(
+        "--gradient_accumulation_steps",
+        type=int,
+        default=4,
+        help="Gradient accumulation steps"
+    )
+    parser.add_argument(
+        "--learning_rate",
+        type=float,
+        default=2e-4,
+        help="Learning rate"
+    )
+    parser.add_argument(
+        "--max_length",
+        type=int,
+        default=512,
+        help="Maximum sequence length"
+    )
+    parser.add_argument(
+        "--lora_r",
+        type=int,
+        default=32,
+        help="LoRA rank"
+    )
+    parser.add_argument(
+        "--lora_alpha",
+        type=int,
+        default=32,
+        help="LoRA alpha"
+    )
+    parser.add_argument(
+        "--lora_dropout",
+        type=float,
+        default=0.1,
+        help="LoRA dropout"
+    )
+    parser.add_argument(
+        "--test_split",
+        type=float,
+        default=0.1,
+        help="Validation split ratio (0 to disable)"
+    )
+    parser.add_argument(
+        "--no_4bit",
+        action="store_true",
+        help="Disable 4-bit quantization (for testing)"
+    )
+    parser.add_argument(
+        "--save_steps",
+        type=int,
+        default=200,
+        help="Save checkpoint every N steps"
+    )
+    parser.add_argument(
+        "--logging_steps",
+        type=int,
+        default=50,
+        help="Log every N steps"
+    )
+    
+    args = parser.parse_args()
+
+    # Load config defaults
+    config_values = load_config(args.config)
+    if config_values:
+        for key, value in config_values.items():
+            if not hasattr(args, key):
+                continue
+            current_value = getattr(args, key)
+            default_value = parser.get_default(key)
+            # If arg set to default (or None), override with config value
+            if current_value == default_value or current_value is None:
+                setattr(args, key, value)
+    
+    # Validate paths
+    dataset_path = Path(args.dataset_path)
+    if not dataset_path.exists():
+        logger.error(f"Dataset file not found: {dataset_path}")
+        return
+    
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info("=" * 60)
+    logger.info("Starting QLoRA Fine-Tuning")
+    logger.info("=" * 60)
+    logger.info(f"Dataset: {dataset_path}")
+    logger.info(f"Model: {args.model_name}")
+    logger.info(f"Output: {output_dir}")
+    logger.info(f"Max samples: {args.max_samples or 'All'}")
+    logger.info(f"Epochs: {args.num_epochs}")
+    logger.info(f"Batch size: {args.batch_size}")
+    logger.info(f"Gradient accumulation: {args.gradient_accumulation_steps}")
+    logger.info(f"Effective batch size: {args.batch_size * args.gradient_accumulation_steps}")
+    logger.info(f"Learning rate: {args.learning_rate}")
+    logger.info("=" * 60)
+    
+    # Load and prepare dataset
+    train_dataset, eval_dataset = load_and_prepare_dataset(
+        str(dataset_path),
+        max_samples=args.max_samples,
+        test_split=args.test_split
+    )
+    
+    # Load model and tokenizer
+    try:
+        model, tokenizer = load_model_and_tokenizer(
+            args.model_name,
+            use_4bit=not args.no_4bit
+        )
+    except Exception as e:
+        logger.error(f"Error loading model: {e}")
+        logger.error("Make sure you have sufficient GPU memory and the model is accessible")
+        raise
+    
+    # Setup PEFT
+    model = setup_peft_model(
+        model,
+        lora_r=args.lora_r,
+        lora_alpha=args.lora_alpha,
+        lora_dropout=args.lora_dropout
+    )
+    
+    # Disable cache for training
+    model.config.use_cache = False
+    
+    # Tokenize dataset
+    logger.info("Tokenizing dataset...")
+    train_dataset = train_dataset.map(
+        lambda x: tokenize_dataset(x, tokenizer, args.max_length),
+        batched=True,
+        remove_columns=["text"]
+    )
+    
+    if eval_dataset is not None:
+        eval_dataset = eval_dataset.map(
+            lambda x: tokenize_dataset(x, tokenizer, args.max_length),
+            batched=True,
+            remove_columns=["text"]
+        )
+    
+    # Create data collator
+    data_collator = create_data_collator(tokenizer, args.max_length)
+    
+    # Setup training arguments
+    training_args = TrainingArguments(
+        output_dir=str(output_dir),
+        num_train_epochs=args.num_epochs,
+        per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.batch_size if eval_dataset else None,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        learning_rate=args.learning_rate,
+        fp16=True,  # Mixed precision training
+        logging_steps=args.logging_steps,
+        save_steps=args.save_steps,
+        eval_steps=args.save_steps if eval_dataset else None,
+        evaluation_strategy="steps" if eval_dataset else "no",
+        save_total_limit=2,
+        load_best_model_at_end=True if eval_dataset else False,
+        metric_for_best_model="loss" if eval_dataset else None,
+        report_to="none",  # Change to "wandb" if using Weights & Biases
+        warmup_steps=100,
+        lr_scheduler_type="cosine",
+    )
+    
+    # Initialize trainer
+    trainer = Trainer(
+        model=model,
+        tokenizer=tokenizer,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        data_collator=data_collator,
+    )
+    
+    # Train
+    logger.info("Starting training...")
+    try:
+        trainer.train()
+    except RuntimeError as e:
+        if "out of memory" in str(e).lower():
+            logger.error("CUDA out of memory! Try:")
+            logger.error("  - Reducing batch_size")
+            logger.error("  - Increasing gradient_accumulation_steps")
+            logger.error("  - Reducing max_length")
+            logger.error("  - Using a smaller model")
+        raise
+    
+    # Save final model
+    final_model_path = output_dir / "Polymarket-7B-LoRA"
+    logger.info(f"Saving final model to {final_model_path}")
+    model.save_pretrained(str(final_model_path))
+    tokenizer.save_pretrained(str(final_model_path))
+    
+    logger.info("=" * 60)
+    logger.info("Training completed successfully!")
+    logger.info(f"Model saved to: {final_model_path}")
+    logger.info("=" * 60)
+
+
+if __name__ == "__main__":
+    main()

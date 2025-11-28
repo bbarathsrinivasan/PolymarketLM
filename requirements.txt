@@ -1,0 +1,19 @@
+# Core ML Libraries
+torch>=2.0.0
+transformers>=4.35.0
+peft>=0.6.0
+bitsandbytes>=0.41.0
+accelerate>=0.24.0
+datasets>=2.14.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Utilities
+tqdm>=4.65.0
+pyyaml>=6.0
+
+# Optional: For logging and monitoring
+# wandb>=0.15.0  # Uncomment if using Weights & Biases
+

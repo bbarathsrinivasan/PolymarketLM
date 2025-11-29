@@ -1,0 +1,14 @@
+  0%|                                                                                                                                                                                   | 0/110 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [21:51<00:00, 11.93s/it]
+{'loss': 1.3422, 'grad_norm': 1.0027899742126465, 'learning_rate': 9.8e-05, 'epoch': 0.91}
+{'loss': 0.5341, 'grad_norm': 0.5038790702819824, 'learning_rate': 0.00019800000000000002, 'epoch': 1.82}
+{'train_runtime': 1312.7405, 'train_samples_per_second': 2.677, 'train_steps_per_second': 0.084, 'train_loss': 0.8951894066550515, 'epoch': 2.0}
+2025-11-29 04:40:03,827 - INFO - Running evaluation on validation set...
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 49/49 [00:23<00:00,  2.05it/s]
+2025-11-29 04:40:28,112 - INFO - Eval metrics: {'eval_loss': 0.5029584169387817, 'eval_runtime': 24.2809, 'eval_samples_per_second': 8.072, 'eval_steps_per_second': 2.018, 'epoch': 2.0, 'perplexity': 1.6536060977494795}
+2025-11-29 04:40:28,112 - INFO - Saving final model to models/checkpoints/Polymarket-7B-LoRA
+2025-11-29 04:40:30,315 - INFO - ============================================================
+2025-11-29 04:40:30,316 - INFO - Training completed successfully!
+2025-11-29 04:40:30,316 - INFO - Model saved to: models/checkpoints/Polymarket-7B-LoRA
+2025-11-29 04:40:30,316 - INFO - ============================================================

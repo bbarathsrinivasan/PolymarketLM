@@ -1,0 +1,25 @@
+  0%|                                                                                                                                                                                   | 0/165 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+  4%|███████▎                                                                                                                                                                   | 7/165 [01:24<31:32, 11.98s/it]Traceback (most recent call last):
+  File "/home/ubuntu/PolymarketLM/scripts/finetune_qlora.py", line 461, in <module>
+    main()
+  File "/home/ubuntu/PolymarketLM/scripts/finetune_qlora.py", line 418, in main
+    trainer.train()
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/transformers/trainer.py", line 2674, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/transformers/trainer.py", line 4071, in training_step
+    self.accelerator.backward(loss, **kwargs)
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/accelerate/accelerator.py", line 2848, in backward
+    self.scaler.scale(loss).backward(**kwargs)
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_tensor.py", line 625, in backward
+    torch.autograd.backward(
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/autograd/__init__.py", line 354, in backward
+    _engine_run_backward(
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/autograd/graph.py", line 841, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

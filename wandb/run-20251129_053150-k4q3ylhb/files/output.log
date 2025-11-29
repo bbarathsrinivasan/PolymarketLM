@@ -1,0 +1,39 @@
+  0%|                                                                                                                                                                                    | 0/56 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 56/56 [21:50<00:00, 23.40s/it]
+{'loss': 2.7393, 'grad_norm': 3.4864087104797363, 'learning_rate': 2e-05, 'epoch': 0.18}
+{'loss': 2.054, 'grad_norm': 2.005598545074463, 'learning_rate': 4.4999999999999996e-05, 'epoch': 0.36}
+{'loss': 1.3462, 'grad_norm': 1.2468664646148682, 'learning_rate': 7.000000000000001e-05, 'epoch': 0.55}
+{'loss': 0.9289, 'grad_norm': 0.6101535558700562, 'learning_rate': 9.5e-05, 'epoch': 0.73}
+{'loss': 0.826, 'grad_norm': 0.7843574285507202, 'learning_rate': 0.00012, 'epoch': 0.91}
+{'loss': 0.7695, 'grad_norm': 1.0838046073913574, 'learning_rate': 0.000145, 'epoch': 1.07}
+{'loss': 0.6771, 'grad_norm': 0.9341481924057007, 'learning_rate': 0.00017, 'epoch': 1.25}
+{'loss': 0.6124, 'grad_norm': 0.6007733941078186, 'learning_rate': 0.00019500000000000002, 'epoch': 1.44}
+{'loss': 0.5508, 'grad_norm': 0.5412788391113281, 'learning_rate': 0.00022, 'epoch': 1.62}
+{'loss': 0.5085, 'grad_norm': 0.49870750308036804, 'learning_rate': 0.000245, 'epoch': 1.8}
+{'loss': 0.4851, 'grad_norm': 0.4069099426269531, 'learning_rate': 0.00027, 'epoch': 1.98}
+{'train_runtime': 1311.6039, 'train_samples_per_second': 2.679, 'train_steps_per_second': 0.043, 'train_loss': 1.036725575370448, 'epoch': 2.0}
+2025-11-29 05:53:41,817 - INFO - Running evaluation on validation set...
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 49/49 [00:23<00:00,  2.05it/s]
+2025-11-29 05:54:06,096 - INFO - Eval metrics: {'eval_loss': 0.5229815244674683, 'eval_runtime': 24.2763, 'eval_samples_per_second': 8.074, 'eval_steps_per_second': 2.018, 'epoch': 2.0, 'perplexity': 1.6870501399095337}
+2025-11-29 05:54:06,096 - INFO - Saving final model to models/checkpoints/Polymarket-7B-LoRA
+2025-11-29 05:54:08,337 - INFO - ============================================================
+2025-11-29 05:54:08,337 - INFO - Training completed successfully!
+2025-11-29 05:54:08,337 - INFO - Model saved to: models/checkpoints/Polymarket-7B-LoRA
+2025-11-29 05:54:08,337 - INFO - ============================================================
+2025-11-29 05:54:08,337 - INFO - ============================================================
+2025-11-29 05:54:08,337 - INFO - Running inference using the fine-tuned LoRA model...
+2025-11-29 05:54:08,338 - INFO - ============================================================
+2025-11-29 05:54:08,567 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:05<00:00,  1.67s/it]
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+2025-11-29 05:54:27,564 - INFO - Inference Result:
+2025-11-29 05:54:27,564 - INFO - [INST] Who will win the US presidential election? [/INST] The US presidential election is still ongoing, and the outcome is uncertain. I cannot predict the result.
+User ID: 0x027235759609091011151455409356818540
+Total posts: 2
+Total followers: 0
+Total following: 0
+Is this your first time using PredictTheWinningParty.com?
+Join the community of users helping to predict the outcome of elections
+Sign up now
+https://predictthe

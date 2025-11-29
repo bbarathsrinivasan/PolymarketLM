@@ -11,6 +11,11 @@ This script:
 - Trains the model and saves LoRA adapters
 """
 
+import transformers
+import sys
+print("SCRIPT Transformers version:", transformers.__version__)
+print("SCRIPT Transformers path:", transformers.__file__)
+print("SCRIPT Python:", sys.executable)
 import os
 import argparse
 import json
@@ -33,6 +38,7 @@ from peft import (
 from datasets import load_dataset
 import logging
 import yaml
+import math
 
 # Setup logging
 logging.basicConfig(
@@ -67,7 +73,7 @@ def load_and_prepare_dataset(dataset_path, max_samples=None, test_split=0.1):
     dataset = dataset.map(format_mistral_prompt, remove_columns=["instruction", "input", "output"])
     
     # Split into train and validation if needed
-    if test_split > 0 and len(dataset) > 100:
+    if test_split > 0:
         dataset = dataset.train_test_split(test_size=test_split, seed=42)
         train_dataset = dataset["train"]
         eval_dataset = dataset["test"]
@@ -341,6 +347,14 @@ def main():
         logger.error(f"Error loading model: {e}")
         logger.error("Make sure you have sufficient GPU memory and the model is accessible")
         raise
+    base_model_path = output_dir / "base_model"
+    logger.info(f"Saving base model to {base_model_path}")
+    base_model_path.mkdir(parents=True, exist_ok=True)
+
+    # Save base model EXACTLY as loaded
+    model.base_model.save_pretrained(str(base_model_path))
+    tokenizer.save_pretrained(str(base_model_path))
+    logger.info("Base model saved successfully.")
     
     # Setup PEFT
     model = setup_peft_model(
@@ -370,6 +384,10 @@ def main():
     
     # Create data collator
     data_collator = create_data_collator(tokenizer, args.max_length)
+
+    from transformers import TrainingArguments
+    import inspect
+    print("TrainingArguments loaded from:", inspect.getfile(TrainingArguments))
     
     # Setup training arguments
     training_args = TrainingArguments(
@@ -383,11 +401,11 @@ def main():
         logging_steps=args.logging_steps,
         save_steps=args.save_steps,
         eval_steps=args.save_steps if eval_dataset else None,
-        evaluation_strategy="steps" if eval_dataset else "no",
+        #evaluation_strategy="steps" if eval_dataset else "no",
         save_total_limit=2,
-        load_best_model_at_end=True if eval_dataset else False,
-        metric_for_best_model="loss" if eval_dataset else None,
-        report_to="none",  # Change to "wandb" if using Weights & Biases
+        load_best_model_at_end=False,
+        metric_for_best_model=None,
+        report_to="wandb",  # Change to "wandb" if using Weights & Biases
         warmup_steps=100,
         lr_scheduler_type="cosine",
     )
@@ -406,6 +424,26 @@ def main():
     logger.info("Starting training...")
     try:
         trainer.train()
+        # ---- Run evaluation after training (if we have a validation set) ----
+        if eval_dataset is not None:
+            logger.info("Running evaluation on validation set...")
+            eval_metrics = trainer.evaluate()
+
+            eval_loss = eval_metrics.get("eval_loss")
+            if eval_loss is not None:
+                try:
+                    eval_metrics["perplexity"] = math.exp(eval_loss)
+                except OverflowError:
+                    eval_metrics["perplexity"] = float("inf")
+
+            logger.info(f"Eval metrics: {eval_metrics}")
+            # Log on wandb as well
+            if trainer.args.report_to == "wandb":
+                import wandb
+                wandb.log(eval_metrics)
+
+        else:
+            logger.info("No eval dataset — skipping evaluation.")
     except RuntimeError as e:
         if "out of memory" in str(e).lower():
             logger.error("CUDA out of memory! Try:")
@@ -420,6 +458,29 @@ def main():
     logger.info(f"Saving final model to {final_model_path}")
     model.save_pretrained(str(final_model_path))
     tokenizer.save_pretrained(str(final_model_path))
+
+    from peft import PeftModel
+
+    logger.info("Merging LoRA adapter into base model...")
+
+    # Load base model again in full precision (must be FP16 or FP32)
+    merged_model = AutoModelForCausalLM.from_pretrained(
+        args.model_name,
+        torch_dtype=torch.float16,
+        device_map="auto"
+    )
+
+    lora_model = PeftModel.from_pretrained(merged_model, final_model_path)
+    merged_model = lora_model.merge_and_unload()   # THIS merges LoRA → base
+
+    merged_path = output_dir / "Polymarket-7B-MERGED"
+    logger.info(f"Saving merged full model to: {merged_path}")
+
+    merged_path.mkdir(parents=True, exist_ok=True)
+    merged_model.save_pretrained(str(merged_path))
+    tokenizer.save_pretrained(str(merged_path))
+
+    logger.info("Merged model saved successfully.")
     
     logger.info("=" * 60)
     logger.info("Training completed successfully!")

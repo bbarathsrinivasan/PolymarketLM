@@ -1,0 +1,13 @@
+  0%|                                                                                                                                                                                     | 0/3 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:45<00:00, 15.29s/it]
+{'train_runtime': 46.7416, 'train_samples_per_second': 0.963, 'train_steps_per_second': 0.064, 'train_loss': 1.4057284990946453, 'epoch': 1.0}
+2025-11-29 04:02:33,464 - INFO - Running evaluation on validation set...
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:00<00:00,  4.19it/s]
+Traceback (most recent call last):
+  File "/home/ubuntu/PolymarketLM/scripts/finetune_qlora.py", line 460, in <module>
+    main()
+  File "/home/ubuntu/PolymarketLM/scripts/finetune_qlora.py", line 426, in main
+    eval_metrics["perplexity"] = math.exp(eval_loss)
+                                 ^^^^
+NameError: name 'math' is not defined

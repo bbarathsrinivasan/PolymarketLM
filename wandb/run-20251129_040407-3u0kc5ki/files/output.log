@@ -1,0 +1,12 @@
+  0%|                                                                                                                                                                                     | 0/3 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:45<00:00, 15.31s/it]
+{'train_runtime': 46.8122, 'train_samples_per_second': 0.961, 'train_steps_per_second': 0.064, 'train_loss': 1.4057531356811523, 'epoch': 1.0}
+2025-11-29 04:04:53,940 - INFO - Running evaluation on validation set...
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:00<00:00,  4.19it/s]
+2025-11-29 04:04:55,275 - INFO - Eval metrics: {'eval_loss': 1.8347060680389404, 'eval_runtime': 1.3328, 'eval_samples_per_second': 3.752, 'eval_steps_per_second': 1.501, 'epoch': 1.0, 'perplexity': 6.263292892884788}
+2025-11-29 04:04:55,276 - INFO - Saving final model to models/checkpoints/Polymarket-7B-LoRA
+2025-11-29 04:04:57,515 - INFO - ============================================================
+2025-11-29 04:04:57,515 - INFO - Training completed successfully!
+2025-11-29 04:04:57,515 - INFO - Model saved to: models/checkpoints/Polymarket-7B-LoRA
+2025-11-29 04:04:57,515 - INFO - ============================================================

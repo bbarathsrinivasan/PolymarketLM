@@ -90,17 +90,17 @@ def test_sample_prompts(model, tokenizer):
     test_cases = [
         {
             "task": "Outcome Prediction",
-            "instruction": "Predict the market outcome given the historical data.",
+            "instruction": "Predict the market outcome given the historical data. Answer in a short paragraph. Explain your reasoning for the answer.",
             "input": "Market ID: 12345\nQuestion: Will Candidate X win the election?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1000\nPrice History:\n2024-01-01: 0.45\n2024-01-02: 0.52\n2024-01-03: 0.58\nTrade Summary: Total trades: 50, Buy volume: 600, Sell volume: 400"
         },
         {
             "task": "Manipulation Detection",
-            "instruction": "Detect if the following market experienced manipulation (Yes or No).",
+            "instruction": "Detect if the following market experienced manipulation (Yes or No). Answer in a short paragraph. Explain your reasoning for the answer.",
             "input": "Market ID: 12345\nQuestion: Will Event Y happen?\nVolume: 5000\nPrice History:\n2024-01-01: 0.30\n2024-01-02: 0.85\n2024-01-03: 0.20\nTrade Summary: Total trades: 200, Buy volume: 4000, Sell volume: 1000\nManipulation Indicators Detected: price_spike, wash_trading"
         },
         {
             "task": "User Classification",
-            "instruction": "Classify the trader based on their history (Noise Trader or Informed Trader).",
+            "instruction": "Classify the trader based on their history (Noise Trader or Informed Trader). Answer in a short paragraph. Explain your reasoning for the answer.",
             "input": "User ID: 0xabc123\nTotal Trades: 150\nTotal Volume: 5000.5\nAverage Trade Size: 33.34\nActive Markets: 10\nTrades per Day: 5.0\nProfit: 250.3\nWin Rate: 65.0%"
         }
     ]
@@ -116,7 +116,7 @@ def test_sample_prompts(model, tokenizer):
         prompt = format_prompt(test_case["instruction"], test_case.get("input"))
         logger.info(f"Prompt: {prompt[:200]}...")
         
-        response = generate_response(model, tokenizer, prompt, max_new_tokens=20)
+        response = generate_response(model, tokenizer, prompt, max_new_tokens=128)
         logger.info(f"Response: {response}")
         logger.info("-" * 60)
 

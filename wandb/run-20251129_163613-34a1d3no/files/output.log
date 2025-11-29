@@ -1,0 +1,29 @@
+  0%|                                                                                                                                                                                    | 0/56 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 56/56 [21:55<00:00, 23.50s/it]
+{'loss': 2.7384, 'grad_norm': 3.601137638092041, 'learning_rate': 2e-05, 'epoch': 0.18}
+{'loss': 2.0513, 'grad_norm': 2.0956027507781982, 'learning_rate': 4.4999999999999996e-05, 'epoch': 0.36}
+{'loss': 1.346, 'grad_norm': 1.2178738117218018, 'learning_rate': 7.000000000000001e-05, 'epoch': 0.55}
+{'loss': 0.9267, 'grad_norm': 0.6294642090797424, 'learning_rate': 9.5e-05, 'epoch': 0.73}
+{'loss': 0.8216, 'grad_norm': 0.7998271584510803, 'learning_rate': 0.00012, 'epoch': 0.91}
+{'loss': 0.7606, 'grad_norm': 1.1070104837417603, 'learning_rate': 0.000145, 'epoch': 1.07}
+{'loss': 0.6685, 'grad_norm': 0.7591309547424316, 'learning_rate': 0.00017, 'epoch': 1.25}
+{'loss': 0.6093, 'grad_norm': 0.5474643111228943, 'learning_rate': 0.00019500000000000002, 'epoch': 1.44}
+{'loss': 0.5487, 'grad_norm': 0.554201066493988, 'learning_rate': 0.00022, 'epoch': 1.62}
+{'loss': 0.5092, 'grad_norm': 0.49557480216026306, 'learning_rate': 0.000245, 'epoch': 1.8}
+{'loss': 0.4852, 'grad_norm': 0.3380720913410187, 'learning_rate': 0.00027, 'epoch': 1.98}
+{'train_runtime': 1317.8758, 'train_samples_per_second': 2.666, 'train_steps_per_second': 0.042, 'train_loss': 1.0338816217013769, 'epoch': 2.0}
+2025-11-29 16:58:10,779 - INFO - Running evaluation on validation set...
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 49/49 [00:23<00:00,  2.05it/s]
+2025-11-29 16:58:35,033 - INFO - Eval metrics: {'eval_loss': 0.525040328502655, 'eval_runtime': 24.2522, 'eval_samples_per_second': 8.082, 'eval_steps_per_second': 2.02, 'epoch': 2.0, 'perplexity': 1.690527023427936}
+2025-11-29 16:58:35,034 - INFO - Saving final model to models/checkpoints/Polymarket-7B-LoRA
+2025-11-29 16:58:37,086 - INFO - Merging LoRA adapter into base model...
+`torch_dtype` is deprecated! Use `dtype` instead!
+2025-11-29 16:58:37,125 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:02<00:00,  1.18it/s]
+2025-11-29 16:58:40,706 - INFO - Saving merged full model to: models/checkpoints/Polymarket-7B-MERGED
+2025-11-29 17:00:05,891 - INFO - Merged model saved successfully.
+2025-11-29 17:00:05,892 - INFO - ============================================================
+2025-11-29 17:00:05,892 - INFO - Training completed successfully!
+2025-11-29 17:00:05,892 - INFO - Model saved to: models/checkpoints/Polymarket-7B-LoRA
+2025-11-29 17:00:05,892 - INFO - ============================================================

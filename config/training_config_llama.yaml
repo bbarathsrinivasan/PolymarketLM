@@ -1,0 +1,22 @@
+# Training Configuration for Llama-2-7B-Chat
+# This config is specifically for fine-tuning Llama-2-7b-chat-hf
+
+dataset_path: data/fine_tune.jsonl
+model_name: meta-llama/Llama-2-7b-chat-hf
+output_dir: models/checkpoints
+max_samples: null
+num_epochs: 3
+batch_size: 4
+gradient_accumulation_steps: 4
+learning_rate: 0.0002
+max_length: 512
+lora_r: 32
+lora_alpha: 32
+lora_dropout: 0.1
+test_split: 0.1
+no_4bit: false
+save_steps: 200
+logging_steps: 50
+report_to: wandb
+run_name: polymarket-llama-run
+

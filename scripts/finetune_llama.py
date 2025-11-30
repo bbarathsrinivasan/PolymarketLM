@@ -197,7 +197,7 @@ def load_config(config_path):
 
 def main():
     parser = argparse.ArgumentParser(description="Fine-tune Llama-2-7B with QLoRA")
-    parser.add_argument("--config", type=str, default="config/training_config.yaml")
+    parser.add_argument("--config", type=str, default="config/training_config_llama.yaml")
     parser.add_argument("--dataset_path", type=str, default="data/fine_tune.jsonl")
     parser.add_argument("--model_name", type=str, default="meta-llama/Llama-2-7b-chat-hf")
     parser.add_argument("--output_dir", type=str, default="models/checkpoints")

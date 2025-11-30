@@ -1,8 +1,9 @@
 """
-Compare base model vs fine-tuned (merged) model on test dataset.
+Compare base model vs fine-tuned (LoRA adapter) model on test dataset.
 
-This script:
-- Loads both base and fine-tuned models in the same way (FP16)
+This script uses the adapter approach:
+- Loads base model once (14GB)
+- Loads fine-tuned model by applying LoRA adapter to base model (200MB adapter)
 - Evaluates both on the same test dataset
 - Calculates accuracy, per-task metrics, and improvement
 - Provides detailed comparison report
@@ -15,8 +16,10 @@ import sys
 from pathlib import Path
 from transformers import (
     AutoModelForCausalLM,
-    AutoTokenizer
+    AutoTokenizer,
+    BitsAndBytesConfig
 )
+from peft import PeftModel
 from datasets import load_dataset
 import logging
 from collections import defaultdict
@@ -29,89 +32,95 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_model(model_path, model_name=None):
-    """Load model in FP16 for consistent comparison."""
-    logger.info(f"Loading model from: {model_path}")
+def load_base_model(model_name, use_4bit=True):
+    """Load base model in FP16 or 4-bit for consistent comparison."""
+    logger.info(f"Loading base model: {model_name}")
     
     # Check if CUDA is available
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Using device: {device}")
     
-    model_path_obj = Path(model_path)
-    is_local_model = model_path_obj.exists()
-    
     try:
-        # Try loading with device_map first (for models that were saved with it)
-        if device == "cuda":
-            try:
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_path,
-                    torch_dtype=torch.float16,
-                    device_map="auto",
-                    trust_remote_code=True,
-                    low_cpu_mem_usage=True
-                )
-                logger.info("Loaded model with device_map='auto'")
-            except Exception as e:
-                logger.warning(f"Failed to load with device_map='auto': {e}")
-                logger.info("Trying to load without device_map...")
-                # Fallback: load to CPU first, then move to GPU
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_path,
-                    torch_dtype=torch.float16,
-                    device_map=None,
-                    trust_remote_code=True,
-                    low_cpu_mem_usage=True
-                )
-                model = model.to(device)
-                logger.info(f"Loaded model and moved to {device}")
-        else:
+        if device == "cuda" and use_4bit:
+            # Use 4-bit quantization for memory efficiency
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_compute_dtype=torch.bfloat16
+            )
             model = AutoModelForCausalLM.from_pretrained(
-                model_path,
-                torch_dtype=torch.float32,
-                device_map=None,
+                model_name,
+                quantization_config=bnb_config,
+                device_map="auto",
+                trust_remote_code=True
+            )
+            logger.info("Loaded base model with 4-bit quantization")
+        else:
+            # Load in FP16
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+                device_map="auto" if device == "cuda" else None,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True
             )
-            model = model.to(device)
+            if device == "cuda" and not hasattr(model, "hf_device_map"):
+                model = model.to(device)
+            logger.info(f"Loaded base model in FP16/FP32")
         
         model.eval()
         
-        # Verify model is on correct device and consolidate if needed
+        # Verify model is on correct device
         if device == "cuda":
-            # Check if model uses device_map (multi-device)
             if hasattr(model, "hf_device_map"):
-                logger.info(f"Model uses device_map with devices: {model.hf_device_map}")
-                # For device_map models, we need to ensure inputs go to the right device
-                # The first parameter's device is usually the main device
-                first_param_device = next(model.parameters()).device
-                logger.info(f"First parameter device: {first_param_device}")
+                logger.info(f"Base model uses device_map with devices: {model.hf_device_map}")
             else:
                 first_param_device = next(model.parameters()).device
-                logger.info(f"Model loaded on device: {first_param_device}")
-                if first_param_device.type != "cuda":
-                    logger.warning(f"Model parameters are on {first_param_device}, expected cuda!")
+                logger.info(f"Base model loaded on device: {first_param_device}")
         
     except Exception as e:
-        logger.error(f"Error loading model: {e}")
+        logger.error(f"Error loading base model: {e}")
         import traceback
         logger.error(traceback.format_exc())
         raise
     
-    # Load tokenizer from same path or base model name
-    tokenizer_path = model_path if is_local_model else (model_name or model_path)
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
-    except Exception:
-        # Fallback to base model name if tokenizer not found in merged model
-        logger.info(f"Tokenizer not found in {tokenizer_path}, using {model_name or model_path}")
-        tokenizer = AutoTokenizer.from_pretrained(model_name or model_path, trust_remote_code=True)
-    
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.pad_token_id = tokenizer.eos_token_id
     
     return model, tokenizer
+
+
+def load_model_with_adapter(base_model, adapter_path, base_model_name):
+    """Load fine-tuned model by applying LoRA adapter to base model."""
+    logger.info(f"Loading LoRA adapter from: {adapter_path}")
+    
+    try:
+        # Apply adapter to the base model
+        finetuned_model = PeftModel.from_pretrained(base_model, adapter_path)
+        finetuned_model.eval()
+        logger.info("LoRA adapter loaded successfully")
+        
+        # Verify adapter is applied
+        if hasattr(finetuned_model, "peft_config"):
+            logger.info(f"Adapter config: {list(finetuned_model.peft_config.keys())}")
+        
+    except Exception as e:
+        logger.error(f"Error loading adapter: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise
+    
+    # Tokenizer is the same as base model
+    tokenizer = AutoTokenizer.from_pretrained(base_model_name, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+    
+    return finetuned_model, tokenizer
 
 
 def format_prompt(instruction, input_text=None):
@@ -125,14 +134,17 @@ def format_prompt(instruction, input_text=None):
 def generate_response(model, tokenizer, prompt, max_new_tokens=50, temperature=0.1):
     """Generate response from model with low temperature for more deterministic outputs."""
     # Determine device - handle both single device and device_map cases
-    if hasattr(model, "hf_device_map"):
-        # Model uses device_map, inputs will be automatically placed
-        # Find the device of the first parameter (usually the embedding layer)
-        device = next(model.parameters()).device
-        # For device_map models, we still need to put inputs on a device
-        # The model will handle distribution automatically
+    # For PeftModel, get device from base model
+    if hasattr(model, "base_model"):
+        base_model = model.base_model.model if hasattr(model.base_model, "model") else model.base_model
     else:
-        device = next(model.parameters()).device
+        base_model = model
+    
+    if hasattr(base_model, "hf_device_map"):
+        # Model uses device_map, inputs will be automatically placed
+        device = next(base_model.parameters()).device
+    else:
+        device = next(base_model.parameters()).device
     
     # Tokenize and move to device
     inputs = tokenizer(prompt, return_tensors="pt")
@@ -402,7 +414,7 @@ def print_comparison_report(base_results, finetuned_results, base_metrics, finet
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Compare base model vs fine-tuned (merged) model"
+        description="Compare base model vs fine-tuned (LoRA adapter) model using adapter approach"
     )
     parser.add_argument(
         "--base_model",
@@ -411,10 +423,10 @@ def main():
         help="Base model name or path"
     )
     parser.add_argument(
-        "--finetuned_model",
+        "--adapter_path",
         type=str,
-        default="models/checkpoints/Polymarket-7B-MERGED",
-        help="Path to fine-tuned merged model"
+        default="models/checkpoints/Polymarket-7B-LoRA",
+        help="Path to LoRA adapter (not merged model)"
     )
     parser.add_argument(
         "--test_dataset",
@@ -440,6 +452,11 @@ def main():
         default=None,
         help="Optional: Save detailed results to JSON file"
     )
+    parser.add_argument(
+        "--no_4bit",
+        action="store_true",
+        help="Disable 4-bit quantization (use FP16 instead)"
+    )
     
     args = parser.parse_args()
     
@@ -449,18 +466,22 @@ def main():
         logger.error(f"Test dataset not found: {test_dataset_path}")
         return
     
-    finetuned_model_path = Path(args.finetuned_model)
-    if not finetuned_model_path.exists():
-        logger.error(f"Fine-tuned model not found: {finetuned_model_path}")
-        logger.error("Make sure you have trained and merged the model first using finetune_qlora.py")
+    adapter_path = Path(args.adapter_path)
+    if not adapter_path.exists():
+        logger.error(f"Adapter path not found: {adapter_path}")
+        logger.error("Make sure you have trained the model first using finetune_qlora.py")
+        logger.error("Expected path: models/checkpoints/Polymarket-7B-LoRA")
         return
     
     logger.info("=" * 80)
-    logger.info("MODEL COMPARISON")
+    logger.info("MODEL COMPARISON (Adapter Approach)")
     logger.info("=" * 80)
     logger.info(f"Base model: {args.base_model}")
-    logger.info(f"Fine-tuned model: {args.finetuned_model}")
+    logger.info(f"Adapter path: {args.adapter_path}")
     logger.info(f"Test dataset: {args.test_dataset}")
+    logger.info(f"Using 4-bit quantization: {not args.no_4bit}")
+    logger.info("=" * 80)
+    logger.info("Strategy: Load base model once, apply adapter for fine-tuned model")
     logger.info("=" * 80)
     
     # Load test dataset
@@ -480,10 +501,12 @@ def main():
         test_dataset = test_dataset.select(range(min(args.max_samples, len(test_dataset))))
         logger.info(f"Limited to {len(test_dataset)} samples for testing")
     
-    # Load models
-    logger.info("\nLoading base model...")
+    # Load base model once
+    logger.info("\n" + "=" * 80)
+    logger.info("STEP 1: Loading base model (14GB)")
+    logger.info("=" * 80)
     try:
-        base_model, base_tokenizer = load_model(args.base_model)
+        base_model, base_tokenizer = load_base_model(args.base_model, use_4bit=not args.no_4bit)
         
         # Quick test generation to verify model works
         logger.info("Testing base model with sample generation...")
@@ -495,14 +518,30 @@ def main():
         logger.error(f"Error loading base model: {e}")
         raise
     
-    # Clear GPU cache before loading second model
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-        logger.info("Cleared GPU cache before loading fine-tuned model")
+    # Evaluate base model first (while it's loaded)
+    logger.info("\n" + "=" * 80)
+    logger.info("STEP 2: Evaluating base model")
+    logger.info("=" * 80)
+    base_results = evaluate_model(base_model, base_tokenizer, test_dataset, args.max_samples)
+    base_metrics = calculate_metrics(base_results)
     
-    logger.info("\nLoading fine-tuned model...")
+    # Now load fine-tuned model by applying adapter
+    logger.info("\n" + "=" * 80)
+    logger.info("STEP 3: Loading fine-tuned model (applying 200MB adapter)")
+    logger.info("=" * 80)
+    logger.info("Note: Adapter approach is much faster than loading merged 14GB model!")
     try:
-        finetuned_model, finetuned_tokenizer = load_model(str(finetuned_model_path), args.base_model)
+        # Reload base model for adapter (needed because PeftModel wraps the model)
+        # This is still much faster than loading a merged model (200MB adapter vs 14GB merged)
+        logger.info("Reloading base model for adapter application...")
+        base_model_for_adapter, _ = load_base_model(args.base_model, use_4bit=not args.no_4bit)
+        
+        logger.info(f"Applying LoRA adapter from {adapter_path}...")
+        finetuned_model, finetuned_tokenizer = load_model_with_adapter(
+            base_model_for_adapter, 
+            str(adapter_path), 
+            args.base_model
+        )
         
         # Quick test generation to verify model works
         logger.info("Testing fine-tuned model with sample generation...")
@@ -513,6 +552,13 @@ def main():
     except Exception as e:
         logger.error(f"Error loading fine-tuned model: {e}")
         raise
+    
+    # Evaluate fine-tuned model
+    logger.info("\n" + "=" * 80)
+    logger.info("STEP 4: Evaluating fine-tuned model")
+    logger.info("=" * 80)
+    finetuned_results = evaluate_model(finetuned_model, finetuned_tokenizer, test_dataset, args.max_samples)
+    finetuned_metrics = calculate_metrics(finetuned_results)
     
     # Evaluate both models
     logger.info("\n" + "=" * 80)

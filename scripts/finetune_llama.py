@@ -324,7 +324,7 @@ def main():
         logger.info("No eval dataset — skipping evaluation.")
 
     # Save LoRA adapter
-    final_path = output_dir / "Polymarket-Llama-7B-LoRA"
+    final_path = output_dir / "Gemma-7B-LoRA"
     logger.info(f"Saving LoRA adapter to: {final_path}")
     model.save_pretrained(str(final_path))
     tokenizer.save_pretrained(str(final_path))

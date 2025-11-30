@@ -1,5 +1,5 @@
 """
-Compare base model vs fine-tuned (LoRA adapter) model on test dataset for Llama 7B.
+Compare base model vs fine-tuned (LoRA adapter) model on test dataset for Gemma 7B.
 
 This script uses the adapter approach:
 - Loads base model once (14GB)
@@ -124,17 +124,16 @@ def load_model_with_adapter(base_model, adapter_path, base_model_name):
 
 
 def format_prompt(instruction, input_text=None):
-    """Format prompt in Llama 2 Chat format."""
-    SYSTEM_PROMPT = "You are a helpful AI assistant."
-    
+    """Format prompt in Gemma-IT format."""
     user_prompt = instruction
     if input_text:
         user_prompt += "\n" + input_text
     
-    # Llama 2 Chat format: <s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{user_message} [/INST]
+    # Gemma-IT format: <start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n
     formatted = (
-        f"<s>[INST] <<SYS>>\n{SYSTEM_PROMPT}\n<</SYS>>\n\n"
-        f"{user_prompt.strip()} [/INST]"
+        f"<start_of_turn>user\n"
+        f"{user_prompt.strip()}<end_of_turn>\n"
+        f"<start_of_turn>model\n"
     )
     return formatted
 
@@ -257,7 +256,7 @@ def infer_task_type(instruction):
 
 
 def calculate_loss(model, tokenizer, instruction, input_text, target_text):
-    """Calculate loss for a prompt-target pair using Llama format."""
+    """Calculate loss for a prompt-target pair using Gemma format."""
     # Determine device
     if hasattr(model, "base_model"):
         base_model = model.base_model.model if hasattr(model.base_model, "model") else model.base_model
@@ -269,15 +268,16 @@ def calculate_loss(model, tokenizer, instruction, input_text, target_text):
     else:
         device = next(base_model.parameters()).device
     
-    # Format full text in Llama training format: <s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{prompt} [/INST] response </s>
-    SYSTEM_PROMPT = "You are a helpful AI assistant."
+    # Format full text in Gemma training format: <start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n{response}<end_of_turn>
     user_prompt = instruction
     if input_text:
         user_prompt += "\n" + input_text
     
     full_text = (
-        f"<s>[INST] <<SYS>>\n{SYSTEM_PROMPT}\n<</SYS>>\n\n"
-        f"{user_prompt.strip()} [/INST] {target_text.strip()} </s>"
+        f"<start_of_turn>user\n"
+        f"{user_prompt.strip()}<end_of_turn>\n"
+        f"<start_of_turn>model\n"
+        f"{target_text.strip()}<end_of_turn>"
     )
     
     # Tokenize
@@ -530,18 +530,18 @@ def print_comparison_report(base_results, finetuned_results, base_metrics, finet
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Compare base model vs fine-tuned (LoRA adapter) model for Llama 7B using adapter approach"
+        description="Compare base model vs fine-tuned (LoRA adapter) model for gemma 7B using adapter approach"
     )
     parser.add_argument(
         "--base_model",
         type=str,
-        default="meta-llama/Llama-2-7b-chat-hf",
+        default="google/gemma-7b-it",
         help="Base model name or path"
     )
     parser.add_argument(
         "--adapter_path",
         type=str,
-        default="models/checkpoints/Llama-7B-LoRA",
+        default="models/checkpoints/Gemma-7B-LoRA",
         help="Path to LoRA adapter (not merged model)"
     )
     parser.add_argument(
@@ -586,11 +586,11 @@ def main():
     if not adapter_path.exists():
         logger.error(f"Adapter path not found: {adapter_path}")
         logger.error("Make sure you have trained the model first using finetune_llama.py")
-        logger.error("Expected path: models/checkpoints/Polymarket-Llama-7B-LoRA")
+        logger.error("Expected path: models/checkpoints/Gemma-7B-LoRA")
         return
     
     logger.info("=" * 80)
-    logger.info("MODEL COMPARISON (Adapter Approach) - LLAMA 7B")
+    logger.info("MODEL COMPARISON (Adapter Approach) - GEMMA 7B")
     logger.info("=" * 80)
     logger.info(f"Base model: {args.base_model}")
     logger.info(f"Adapter path: {args.adapter_path}")

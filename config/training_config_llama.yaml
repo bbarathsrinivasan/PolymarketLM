@@ -2,10 +2,10 @@
 # This config is specifically for fine-tuning Llama-2-7b-chat-hf
 
 dataset_path: data/fine_tune.jsonl
-model_name: meta-llama/Llama-2-7b-chat-hf
+model_name: google/gemma-7b-it
 output_dir: models/checkpoints
 max_samples: null
-num_epochs: 3
+num_epochs: 1
 batch_size: 4
 gradient_accumulation_steps: 4
 learning_rate: 0.0002

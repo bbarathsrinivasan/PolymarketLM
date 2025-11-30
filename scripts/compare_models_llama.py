@@ -535,7 +535,7 @@ def main():
     parser.add_argument(
         "--base_model",
         type=str,
-        default="meta-llama/Llama-2-7b-chat-hf",
+        default="meta-llama/Meta-Llama-3-8B-Instruct",
         help="Base model name or path"
     )
     parser.add_argument(

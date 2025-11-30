@@ -525,20 +525,17 @@ def main():
     base_results = evaluate_model(base_model, base_tokenizer, test_dataset, args.max_samples)
     base_metrics = calculate_metrics(base_results)
     
-    # Now load fine-tuned model by applying adapter
+    # Now load fine-tuned model by applying adapter to the same base model
     logger.info("\n" + "=" * 80)
     logger.info("STEP 3: Loading fine-tuned model (applying 200MB adapter)")
     logger.info("=" * 80)
-    logger.info("Note: Adapter approach is much faster than loading merged 14GB model!")
+    logger.info("Note: Reusing base model instance - only loading 200MB adapter!")
     try:
-        # Reload base model for adapter (needed because PeftModel wraps the model)
-        # This is still much faster than loading a merged model (200MB adapter vs 14GB merged)
-        logger.info("Reloading base model for adapter application...")
-        base_model_for_adapter, _ = load_base_model(args.base_model, use_4bit=not args.no_4bit)
-        
-        logger.info(f"Applying LoRA adapter from {adapter_path}...")
+        # Apply adapter to the same base model instance
+        # PeftModel wraps the model, so we can reuse the base model
+        logger.info(f"Applying LoRA adapter from {adapter_path} to base model...")
         finetuned_model, finetuned_tokenizer = load_model_with_adapter(
-            base_model_for_adapter, 
+            base_model, 
             str(adapter_path), 
             args.base_model
         )
@@ -551,24 +548,12 @@ def main():
         
     except Exception as e:
         logger.error(f"Error loading fine-tuned model: {e}")
+        logger.error("Note: If this fails, the adapter might need a fresh base model instance")
         raise
     
     # Evaluate fine-tuned model
     logger.info("\n" + "=" * 80)
     logger.info("STEP 4: Evaluating fine-tuned model")
-    logger.info("=" * 80)
-    finetuned_results = evaluate_model(finetuned_model, finetuned_tokenizer, test_dataset, args.max_samples)
-    finetuned_metrics = calculate_metrics(finetuned_results)
-    
-    # Evaluate both models
-    logger.info("\n" + "=" * 80)
-    logger.info("EVALUATING BASE MODEL")
-    logger.info("=" * 80)
-    base_results = evaluate_model(base_model, base_tokenizer, test_dataset, args.max_samples)
-    base_metrics = calculate_metrics(base_results)
-    
-    logger.info("\n" + "=" * 80)
-    logger.info("EVALUATING FINE-TUNED MODEL")
     logger.info("=" * 80)
     finetuned_results = evaluate_model(finetuned_model, finetuned_tokenizer, test_dataset, args.max_samples)
     finetuned_metrics = calculate_metrics(finetuned_results)

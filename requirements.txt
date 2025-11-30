@@ -14,6 +14,10 @@ pandas>=2.0.0
 tqdm>=4.65.0
 pyyaml>=6.0
 
+# News Retrieval (RAG Integration)
+feedparser>=6.0.10
+requests>=2.31.0
+
 # Optional: For logging and monitoring
 # wandb>=0.15.0  # Uncomment if using Weights & Biases
 

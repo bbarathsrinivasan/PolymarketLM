@@ -1,0 +1,36 @@
+# News Retrieval Configuration for RAG Integration
+
+# RSS Feed URLs to fetch news from
+rss_feeds:
+  # Financial News
+  - "https://feeds.reuters.com/reuters/businessNews"
+  - "https://feeds.bloomberg.com/markets/news.rss"
+  - "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+  
+  # Political News
+  - "https://feeds.reuters.com/reuters/topNews"
+  - "https://rss.cnn.com/rss/edition.rss"
+  
+  # Crypto News
+  - "https://cointelegraph.com/rss"
+  - "https://www.coindesk.com/arc/outboundfeeds/rss/"
+  
+  # General News
+  - "https://feeds.bbci.co.uk/news/rss.xml"
+  - "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+
+# Number of news articles to include in prompt
+num_articles: 3
+
+# Maximum length of article description (characters)
+article_max_length: 200
+
+# Cache directory for RSS feed results
+cache_dir: "integration/.news_cache"
+
+# Cache time-to-live in seconds (1 hour = 3600)
+cache_ttl: 3600
+
+# Maximum age of articles to consider (days)
+max_age_days: 7
+

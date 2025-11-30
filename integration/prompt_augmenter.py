@@ -6,31 +6,32 @@ Adds relevant news articles to prompts before model inference.
 
 import logging
 from typing import Optional, List, Dict, Tuple
-from .news_retriever import NewsRetriever, get_relevant_news
+from .search_retriever import SearchRetriever, get_relevant_search_results
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def format_article(article: Dict, max_length: int = 200) -> str:
+def format_search_result(result: Dict, max_length: int = 300) -> str:
     """
-    Format a single article for inclusion in prompt.
+    Format a single search result for inclusion in prompt.
     
     Args:
-        article: Article dictionary with title, description, source, published
-        max_length: Maximum length of description to include
+        result: Search result dictionary with title, snippet, link, source
+        max_length: Maximum length of snippet to include
         
     Returns:
-        Formatted article string
+        Formatted search result string
     """
-    title = article.get('title', 'Untitled')
-    description = article.get('description', '')
-    source = article.get('source', 'Unknown Source')
-    published = article.get('published', None)
+    title = result.get('title', 'Untitled')
+    snippet = result.get('snippet', '') or result.get('description', '')
+    link = result.get('link', '')
+    source = result.get('source', 'Unknown Source')
+    published = result.get('published', None)
     
-    # Truncate description if too long
-    if len(description) > max_length:
-        description = description[:max_length] + "..."
+    # Truncate snippet if too long
+    if len(snippet) > max_length:
+        snippet = snippet[:max_length] + "..."
     
     # Format date
     date_str = ""
@@ -40,75 +41,102 @@ def format_article(article: Dict, max_length: int = 200) -> str:
         else:
             date_str = published.strftime('%Y-%m-%d') if hasattr(published, 'strftime') else str(published)[:10]
     
-    # Format article
+    # Format result
     if date_str:
         header = f"{title} - {source} ({date_str})"
     else:
         header = f"{title} - {source}"
     
-    if description:
-        return f"{header}\n{description}"
+    if link:
+        header += f" [{link}]"
+    
+    if snippet:
+        return f"{header}\n{snippet}"
     else:
         return header
 
 
-def augment_prompt_with_news(
+def augment_prompt_with_search(
     instruction: str,
     input_text: str,
-    feed_urls: List[str],
-    num_articles: int = 3,
-    news_retriever: Optional[NewsRetriever] = None,
+    provider: str = "duckduckgo",
+    api_key: Optional[str] = None,
+    num_results: int = 5,
+    search_retriever: Optional[SearchRetriever] = None,
     cache_dir: Optional[str] = None
 ) -> Tuple[str, List[Dict]]:
     """
-    Augment prompt with relevant news articles.
+    Augment prompt with relevant search results.
     
     Args:
         instruction: Original instruction text
         input_text: Original input text (contains market question/data)
-        feed_urls: List of RSS feed URLs to search
-        num_articles: Number of news articles to include
-        news_retriever: Optional NewsRetriever instance (creates new one if None)
-        cache_dir: Directory to cache RSS feed results
+        provider: Search provider ("duckduckgo" or "serpapi")
+        api_key: API key for providers that require it
+        num_results: Number of search results to include
+        search_retriever: Optional SearchRetriever instance (creates new one if None)
+        cache_dir: Directory to cache search results
         
     Returns:
-        Tuple[str, List[Dict]]: (augmented_input_text, retrieved_articles)
+        Tuple[str, List[Dict]]: (augmented_input_text, retrieved_results)
     """
     # Extract market question from input text
     market_question = extract_market_question(input_text)
     
     if not market_question:
-        logger.warning("Could not extract market question, skipping news retrieval")
+        logger.warning("Could not extract market question, skipping search")
         return input_text, []
     
-    # Retrieve relevant news
+    # Retrieve relevant search results
     try:
-        if news_retriever is None:
-            news_retriever = NewsRetriever(feed_urls, cache_dir=cache_dir)
+        if search_retriever is None:
+            search_retriever = SearchRetriever(provider=provider, api_key=api_key, cache_dir=cache_dir)
         
-        articles = news_retriever.get_relevant_news(
+        results = search_retriever.get_relevant_search_results(
             market_question,
-            num_articles=num_articles
+            num_results=num_results
         )
         
-        if not articles:
-            logger.info("No relevant news articles found")
+        if not results:
+            logger.info("No relevant search results found")
             return input_text, []
         
-        # Format news section
-        news_section = format_news_section(articles)
+        # Format search results section
+        search_section = format_search_section(results)
         
         # Combine with original input
-        # Add instruction to consider news in the reasoning
-        augmented_input = f"{input_text}\n\nRelevant News:\n{news_section}\n\nPlease consider the above news articles when making your prediction and explain how they influence your reasoning."
+        # Add instruction to consider search results in the reasoning
+        augmented_input = f"{input_text}\n\nRelevant Information from Web Search:\n{search_section}\n\nPlease analyze the above search results and explain how they inform your prediction. Consider the credibility of sources, recency of information, and how the information relates to the market question."
         
-        logger.info(f"Augmented prompt with {len(articles)} news articles")
-        return augmented_input, articles
+        logger.info(f"Augmented prompt with {len(results)} search results")
+        return augmented_input, results
         
     except Exception as e:
-        logger.error(f"Error retrieving news: {e}")
-        logger.info("Falling back to prompt without news")
+        logger.error(f"Error retrieving search results: {e}")
+        logger.info("Falling back to prompt without search results")
         return input_text, []
+
+
+# Keep old function name for backward compatibility
+def augment_prompt_with_news(
+    instruction: str,
+    input_text: str,
+    feed_urls: List[str] = None,
+    num_articles: int = 3,
+    news_retriever: Optional = None,
+    cache_dir: Optional[str] = None
+) -> Tuple[str, List[Dict]]:
+    """
+    Deprecated: Use augment_prompt_with_search instead.
+    Kept for backward compatibility.
+    """
+    logger.warning("augment_prompt_with_news is deprecated. Use augment_prompt_with_search instead.")
+    return augment_prompt_with_search(
+        instruction, input_text,
+        provider="duckduckgo",
+        num_results=num_articles,
+        cache_dir=cache_dir
+    )
 
 
 def extract_market_question(input_text: str) -> str:
@@ -165,24 +193,24 @@ def extract_market_question(input_text: str) -> str:
     return input_text[:200]  # Fallback to first 200 chars
 
 
-def format_news_section(articles: List[Dict], max_length: int = 200) -> str:
+def format_search_section(results: List[Dict], max_length: int = 300) -> str:
     """
-    Format a list of articles into a news section for the prompt.
+    Format a list of search results into a section for the prompt.
     
     Args:
-        articles: List of article dictionaries
-        max_length: Maximum length per article description
+        results: List of search result dictionaries
+        max_length: Maximum length per result snippet
         
     Returns:
-        Formatted news section string
+        Formatted search results section string
     """
-    if not articles:
-        return "No relevant news found."
+    if not results:
+        return "No relevant information found."
     
-    formatted_articles = []
-    for i, article in enumerate(articles, 1):
-        formatted = format_article(article, max_length=max_length)
-        formatted_articles.append(formatted)
+    formatted_results = []
+    for i, result in enumerate(results, 1):
+        formatted = format_search_result(result, max_length=max_length)
+        formatted_results.append(f"[Result {i}]\n{formatted}")
     
-    return "\n\n".join(formatted_articles)
+    return "\n\n".join(formatted_results)
 

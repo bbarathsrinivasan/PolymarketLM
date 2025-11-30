@@ -1,15 +1,16 @@
 """
 Integration module for PolymarketLM.
 
-Provides news retrieval and prompt augmentation for RAG-style inference.
+Provides search-based retrieval and prompt augmentation for RAG-style inference.
 """
 
-from .news_retriever import NewsRetriever, get_relevant_news
-from .prompt_augmenter import augment_prompt_with_news
+from .search_retriever import SearchRetriever, get_relevant_search_results
+from .prompt_augmenter import augment_prompt_with_search, augment_prompt_with_news
 
 __all__ = [
-    'NewsRetriever',
-    'get_relevant_news',
-    'augment_prompt_with_news',
+    'SearchRetriever',
+    'get_relevant_search_results',
+    'augment_prompt_with_search',
+    'augment_prompt_with_news',  # For backward compatibility
 ]
 

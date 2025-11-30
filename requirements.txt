@@ -14,8 +14,9 @@ pandas>=2.0.0
 tqdm>=4.65.0
 pyyaml>=6.0
 
-# News Retrieval (RAG Integration)
-feedparser>=6.0.10
+# Search API (RAG Integration)
+duckduckgo-search>=4.1.0  # Free, no API key required
+google-search-results>=2.4.2  # For SerpAPI (optional, requires API key)
 requests>=2.31.0
 
 # Optional: For logging and monitoring

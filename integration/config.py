@@ -11,34 +11,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# Default RSS feed URLs (financial, political, crypto news)
-DEFAULT_RSS_FEEDS = [
-    # Financial News
-    "https://feeds.reuters.com/reuters/businessNews",
-    "https://feeds.bloomberg.com/markets/news.rss",
-    "https://www.cnbc.com/id/100003114/device/rss/rss.html",
-    
-    # Political News
-    "https://feeds.reuters.com/reuters/topNews",
-    "https://rss.cnn.com/rss/edition.rss",
-    
-    # Crypto News
-    "https://cointelegraph.com/rss",
-    "https://www.coindesk.com/arc/outboundfeeds/rss/",
-    
-    # General News
-    "https://feeds.bbci.co.uk/news/rss.xml",
-    "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
-]
-
-# Default configuration
+# Default search configuration
 DEFAULT_CONFIG = {
-    'rss_feeds': DEFAULT_RSS_FEEDS,
-    'num_articles': 3,
-    'article_max_length': 200,
-    'cache_dir': 'integration/.news_cache',
+    'search_provider': 'duckduckgo',  # Options: 'duckduckgo' or 'serpapi'
+    'serpapi_key': None,  # Set your SerpAPI key here or in environment variable SERPAPI_KEY
+    'num_results': 5,
+    'result_max_length': 300,
+    'cache_dir': 'integration/.search_cache',
     'cache_ttl': 3600,  # 1 hour
-    'max_age_days': 7,
 }
 
 
@@ -74,23 +54,35 @@ def load_config(config_path: str = "integration/news_config.yaml") -> dict:
         return DEFAULT_CONFIG.copy()
 
 
-def get_rss_feeds(config: dict = None) -> List[str]:
-    """Get RSS feed URLs from config."""
+def get_search_provider(config: dict = None) -> str:
+    """Get search provider from config."""
     if config is None:
         config = load_config()
-    return config.get('rss_feeds', DEFAULT_RSS_FEEDS)
+    return config.get('search_provider', 'duckduckgo')
 
 
-def get_num_articles(config: dict = None) -> int:
-    """Get number of articles to retrieve from config."""
+def get_serpapi_key(config: dict = None) -> Optional[str]:
+    """Get SerpAPI key from config or environment variable."""
+    import os
     if config is None:
         config = load_config()
-    return config.get('num_articles', 3)
+    # Check environment variable first
+    env_key = os.getenv('SERPAPI_KEY')
+    if env_key:
+        return env_key
+    return config.get('serpapi_key')
+
+
+def get_num_results(config: dict = None) -> int:
+    """Get number of search results to retrieve from config."""
+    if config is None:
+        config = load_config()
+    return config.get('num_results', 5)
 
 
 def get_cache_dir(config: dict = None) -> str:
     """Get cache directory from config."""
     if config is None:
         config = load_config()
-    return config.get('cache_dir', 'integration/.news_cache')
+    return config.get('cache_dir', 'integration/.search_cache')
 

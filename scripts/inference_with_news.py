@@ -21,8 +21,14 @@ from transformers import (
 from peft import PeftModel
 import logging
 
-from integration.prompt_augmenter import augment_prompt_with_news
-from integration.config import load_config, get_rss_feeds, get_num_articles, get_cache_dir
+from integration.prompt_augmenter import augment_prompt_with_search
+from integration.config import (
+    load_config, 
+    get_search_provider, 
+    get_serpapi_key,
+    get_num_results, 
+    get_cache_dir
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -130,7 +136,7 @@ def main():
     parser.add_argument(
         "--instruction",
         type=str,
-        default="Predict the market outcome given the historical data and relevant news. Explain your reasoning, especially how the news articles inform your prediction.",
+        default="Predict the market outcome given the historical data and relevant information from web search. Analyze the search results carefully and explain your reasoning, including how the information from different sources informs your prediction. Consider the credibility of sources and recency of information.",
         help="Instruction for the task"
     )
     parser.add_argument(
@@ -158,10 +164,23 @@ def main():
         help="Price history (formatted text)"
     )
     parser.add_argument(
-        "--num_news",
+        "--num_results",
         type=int,
         default=None,
-        help="Number of news articles to include (overrides config)"
+        help="Number of search results to include (overrides config)"
+    )
+    parser.add_argument(
+        "--search_provider",
+        type=str,
+        default=None,
+        choices=["duckduckgo", "serpapi"],
+        help="Search provider to use (overrides config)"
+    )
+    parser.add_argument(
+        "--serpapi_key",
+        type=str,
+        default=None,
+        help="SerpAPI key (overrides config and environment variable)"
     )
     parser.add_argument(
         "--no_4bit",
@@ -171,13 +190,13 @@ def main():
     parser.add_argument(
         "--no_news",
         action="store_true",
-        help="Skip news augmentation (baseline comparison)"
+        help="Skip search augmentation (baseline comparison)"
     )
     parser.add_argument(
         "--config",
         type=str,
-        default="integration/news_config.yaml",
-        help="Path to news config file"
+        default="integration/search_config.yaml",
+        help="Path to search config file"
     )
     parser.add_argument(
         "--max_new_tokens",
@@ -203,8 +222,9 @@ def main():
     
     # Load config
     config = load_config(args.config)
-    feed_urls = get_rss_feeds(config)
-    num_articles = args.num_news or get_num_articles(config)
+    search_provider = args.search_provider or get_search_provider(config)
+    serpapi_key = args.serpapi_key or get_serpapi_key(config)
+    num_results = args.num_results or get_num_results(config)
     cache_dir = get_cache_dir(config)
     
     # Prepare input text
@@ -254,28 +274,30 @@ def main():
     )
     logger.info(f"\nResponse: {baseline_response}")
     
-    # Generate news-augmented response
+    # Generate search-augmented response
     if not args.no_news:
         logger.info("\n" + "=" * 80)
-        logger.info("NEWS-AUGMENTED RESPONSE")
+        logger.info("SEARCH-AUGMENTED RESPONSE")
         logger.info("=" * 80)
         
-        # Augment prompt with news
-        logger.info(f"Retrieving {num_articles} relevant news articles...")
-        augmented_input, articles = augment_prompt_with_news(
+        # Augment prompt with search results
+        logger.info(f"Retrieving {num_results} relevant search results using {search_provider}...")
+        augmented_input, search_results = augment_prompt_with_search(
             args.instruction,
             input_text,
-            feed_urls,
-            num_articles=num_articles,
+            provider=search_provider,
+            api_key=serpapi_key,
+            num_results=num_results,
             cache_dir=cache_dir
         )
         
-        if articles:
-            logger.info(f"\nRetrieved {len(articles)} relevant articles:")
-            for i, article in enumerate(articles, 1):
-                logger.info(f"  {i}. {article.get('title', 'Untitled')} - {article.get('source', 'Unknown')}")
+        if search_results:
+            logger.info(f"\nRetrieved {len(search_results)} relevant search results:")
+            for i, result in enumerate(search_results, 1):
+                logger.info(f"  {i}. {result.get('title', 'Untitled')} - {result.get('source', 'Unknown')}")
+                logger.info(f"     Link: {result.get('link', 'N/A')}")
         else:
-            logger.info("No relevant articles found, using original prompt")
+            logger.info("No relevant search results found, using original prompt")
             augmented_input = input_text
         
         # Generate response with news
@@ -294,9 +316,9 @@ def main():
         logger.info("COMPARISON")
         logger.info("=" * 80)
         logger.info(f"Baseline Response: {baseline_response}")
-        logger.info(f"News-Augmented Response: {news_response}")
+        logger.info(f"Search-Augmented Response: {news_response}")
     else:
-        logger.info("\nSkipping news augmentation (--no_news flag set)")
+        logger.info("\nSkipping search augmentation (--no_news flag set)")
     
     logger.info("\n" + "=" * 80)
     logger.info("Inference completed!")

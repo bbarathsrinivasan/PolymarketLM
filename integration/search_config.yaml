@@ -1,0 +1,22 @@
+# Search API Configuration for RAG Integration
+
+# Search provider: "duckduckgo" (free, no API key) or "serpapi" (requires API key, 250 free searches/month)
+search_provider: "duckduckgo"
+
+# SerpAPI key (only needed if using serpapi provider)
+# Get free API key from: https://serpapi.com/
+# Or set environment variable: export SERPAPI_KEY=your_key_here
+serpapi_key: null
+
+# Number of search results to include in prompt
+num_results: 5
+
+# Maximum length of result snippet (characters)
+result_max_length: 300
+
+# Cache directory for search results
+cache_dir: "integration/.search_cache"
+
+# Cache time-to-live in seconds (1 hour = 3600)
+cache_ttl: 3600
+

@@ -541,7 +541,7 @@ def main():
     parser.add_argument(
         "--adapter_path",
         type=str,
-        default="models/checkpoints/Polymarket-Llama-7B-LoRA",
+        default="models/checkpoints/Llama-7B-LoRA",
         help="Path to LoRA adapter (not merged model)"
     )
     parser.add_argument(

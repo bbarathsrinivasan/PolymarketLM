@@ -1,0 +1,40 @@
+{
+  "os": "Linux-6.8.0-1023-aws-x86_64-with-glibc2.35",
+  "python": "CPython 3.11.14",
+  "startedAt": "2025-11-30T15:57:06.638570Z",
+  "program": "/home/ubuntu/PolymarketLM/scripts/finetune_llama.py",
+  "codePath": "scripts/finetune_llama.py",
+  "codePathLocal": "scripts/finetune_llama.py",
+  "git": {
+    "remote": "https://github.com/bbarathsrinivasan/PolymarketLM.git",
+    "commit": "586aa1063f9d8bc9090771b436e88a29c9bb1348"
+  },
+  "email": "smritisi@andrew.cmu.edu",
+  "root": "/home/ubuntu/PolymarketLM",
+  "host": "ip-172-31-32-63",
+  "executable": "/opt/conda/envs/llm-project/bin/python",
+  "cpu_count": 4,
+  "cpu_count_logical": 8,
+  "gpu": "NVIDIA A10G",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "103865303040",
+      "used": "77554536448"
+    }
+  },
+  "memory": {
+    "total": "33263808512"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA A10G",
+      "memoryTotal": "24146608128",
+      "cudaCores": 10240,
+      "architecture": "Ampere",
+      "uuid": "GPU-551db4c2-e1a5-1669-f9e2-a23fca18baa2"
+    }
+  ],
+  "cudaVersion": "12.4",
+  "writerId": "miabp52f4hjtkv70cgzf8p5jidw2ors4"
+}

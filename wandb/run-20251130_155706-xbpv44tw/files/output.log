@@ -1,0 +1,16 @@
+  0%|                                                                                                                                                                                    | 0/56 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 56/56 [22:04<00:00, 23.65s/it]
+{'loss': 3.2727, 'grad_norm': 5.438270092010498, 'learning_rate': 2e-05, 'epoch': 0.18}
+{'loss': 2.2976, 'grad_norm': 2.3087384700775146, 'learning_rate': 4.4999999999999996e-05, 'epoch': 0.36}
+{'loss': 1.46, 'grad_norm': 1.4454509019851685, 'learning_rate': 7.000000000000001e-05, 'epoch': 0.55}
+{'loss': 0.8947, 'grad_norm': 0.5845246911048889, 'learning_rate': 9.5e-05, 'epoch': 0.73}
+{'loss': 0.7778, 'grad_norm': 0.7022475004196167, 'learning_rate': 0.00012, 'epoch': 0.91}
+{'loss': 0.7225, 'grad_norm': 1.0076168775558472, 'learning_rate': 0.000145, 'epoch': 1.07}
+{'loss': 0.6297, 'grad_norm': 0.6194921731948853, 'learning_rate': 0.00017, 'epoch': 1.25}
+{'loss': 0.5733, 'grad_norm': 0.657394289970398, 'learning_rate': 0.00019500000000000002, 'epoch': 1.44}
+{'loss': 0.5146, 'grad_norm': 0.4147396981716156, 'learning_rate': 0.00022, 'epoch': 1.62}
+{'loss': 0.4764, 'grad_norm': 0.41936585307121277, 'learning_rate': 0.000245, 'epoch': 1.8}
+{'loss': 0.4535, 'grad_norm': 0.3888187110424042, 'learning_rate': 0.00027, 'epoch': 1.98}
+{'train_runtime': 1325.9769, 'train_samples_per_second': 2.65, 'train_steps_per_second': 0.042, 'train_loss': 1.0873681934816497, 'epoch': 2.0}
+2025-11-30 16:19:12,985 - INFO - Finished! LoRA adapter saved to: models/checkpoints/Llama-7B-LoRA

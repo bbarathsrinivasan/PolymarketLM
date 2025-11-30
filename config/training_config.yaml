@@ -15,4 +15,4 @@ no_4bit: false
 save_steps: 200
 logging_steps: 5
 report_to: wandb
-run_name: polymarket-test-run
+run_name: polymarket-mistral-7b-instruct-test-run

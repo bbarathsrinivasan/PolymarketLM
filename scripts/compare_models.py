@@ -11,6 +11,7 @@ This script:
 import argparse
 import json
 import torch
+import sys
 from pathlib import Path
 from transformers import (
     AutoModelForCausalLM,
@@ -32,17 +33,79 @@ def load_model(model_path, model_name=None):
     """Load model in FP16 for consistent comparison."""
     logger.info(f"Loading model from: {model_path}")
     
-    model = AutoModelForCausalLM.from_pretrained(
-        model_path,
-        torch_dtype=torch.float16,
-        device_map="auto",
-        trust_remote_code=True
-    )
-    model.eval()
+    # Check if CUDA is available
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    logger.info(f"Using device: {device}")
+    
+    model_path_obj = Path(model_path)
+    is_local_model = model_path_obj.exists()
+    
+    try:
+        # Try loading with device_map first (for models that were saved with it)
+        if device == "cuda":
+            try:
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_path,
+                    torch_dtype=torch.float16,
+                    device_map="auto",
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True
+                )
+                logger.info("Loaded model with device_map='auto'")
+            except Exception as e:
+                logger.warning(f"Failed to load with device_map='auto': {e}")
+                logger.info("Trying to load without device_map...")
+                # Fallback: load to CPU first, then move to GPU
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_path,
+                    torch_dtype=torch.float16,
+                    device_map=None,
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True
+                )
+                model = model.to(device)
+                logger.info(f"Loaded model and moved to {device}")
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                torch_dtype=torch.float32,
+                device_map=None,
+                trust_remote_code=True,
+                low_cpu_mem_usage=True
+            )
+            model = model.to(device)
+        
+        model.eval()
+        
+        # Verify model is on correct device and consolidate if needed
+        if device == "cuda":
+            # Check if model uses device_map (multi-device)
+            if hasattr(model, "hf_device_map"):
+                logger.info(f"Model uses device_map with devices: {model.hf_device_map}")
+                # For device_map models, we need to ensure inputs go to the right device
+                # The first parameter's device is usually the main device
+                first_param_device = next(model.parameters()).device
+                logger.info(f"First parameter device: {first_param_device}")
+            else:
+                first_param_device = next(model.parameters()).device
+                logger.info(f"Model loaded on device: {first_param_device}")
+                if first_param_device.type != "cuda":
+                    logger.warning(f"Model parameters are on {first_param_device}, expected cuda!")
+        
+    except Exception as e:
+        logger.error(f"Error loading model: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise
     
     # Load tokenizer from same path or base model name
-    tokenizer_path = model_path if Path(model_path).exists() else (model_name or model_path)
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
+    tokenizer_path = model_path if is_local_model else (model_name or model_path)
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
+    except Exception:
+        # Fallback to base model name if tokenizer not found in merged model
+        logger.info(f"Tokenizer not found in {tokenizer_path}, using {model_name or model_path}")
+        tokenizer = AutoTokenizer.from_pretrained(model_name or model_path, trust_remote_code=True)
     
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -61,24 +124,53 @@ def format_prompt(instruction, input_text=None):
 
 def generate_response(model, tokenizer, prompt, max_new_tokens=50, temperature=0.1):
     """Generate response from model with low temperature for more deterministic outputs."""
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    # Determine device - handle both single device and device_map cases
+    if hasattr(model, "hf_device_map"):
+        # Model uses device_map, inputs will be automatically placed
+        # Find the device of the first parameter (usually the embedding layer)
+        device = next(model.parameters()).device
+        # For device_map models, we still need to put inputs on a device
+        # The model will handle distribution automatically
+    else:
+        device = next(model.parameters()).device
     
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            do_sample=temperature > 0,
-            pad_token_id=tokenizer.eos_token_id,
-            eos_token_id=tokenizer.eos_token_id
-        )
+    # Tokenize and move to device
+    inputs = tokenizer(prompt, return_tensors="pt")
+    if device.type == "cuda":
+        inputs = {k: v.to(device) for k, v in inputs.items()}
     
-    # Decode only the new tokens
-    input_length = inputs.input_ids.shape[1]
-    generated_tokens = outputs[0][input_length:]
-    response = tokenizer.decode(generated_tokens, skip_special_tokens=True)
-    
-    return response.strip()
+    try:
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                do_sample=temperature > 0,
+                pad_token_id=tokenizer.eos_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+                use_cache=True
+            )
+        
+        # Decode only the new tokens
+        input_length = inputs["input_ids"].shape[1]
+        generated_tokens = outputs[0][input_length:]
+        response = tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        
+        return response.strip()
+    except RuntimeError as e:
+        if "out of memory" in str(e).lower():
+            logger.error(f"CUDA OOM during generation: {e}")
+            raise
+        else:
+            logger.warning(f"Generation error: {e}, returning empty response")
+            import traceback
+            logger.debug(traceback.format_exc())
+            return ""
+    except Exception as e:
+        logger.warning(f"Unexpected error during generation: {e}")
+        import traceback
+        logger.debug(traceback.format_exc())
+        return ""
 
 
 def parse_response(response, task_type):
@@ -167,8 +259,9 @@ def evaluate_model(model, tokenizer, test_dataset, max_samples=None):
         if max_samples and i >= max_samples:
             break
         
-        if (i + 1) % 50 == 0:
-            logger.info(f"Processed {i + 1}/{dataset_size} examples...")
+        if (i + 1) % 10 == 0:
+            print(f"Processed {i + 1}/{dataset_size} examples...", flush=True)
+            sys.stdout.flush()
         
         instruction = example["instruction"]
         input_text = example.get("input", "")
@@ -183,8 +276,12 @@ def evaluate_model(model, tokenizer, test_dataset, max_samples=None):
         # Generate response
         try:
             response = generate_response(model, tokenizer, prompt, max_new_tokens=50, temperature=0.1)
+            if not response:
+                logger.debug(f"Empty response for example {i}")
         except Exception as e:
             logger.warning(f"Error generating response for example {i}: {e}")
+            import traceback
+            logger.debug(traceback.format_exc())
             response = ""
         
         # Parse prediction
@@ -387,13 +484,32 @@ def main():
     logger.info("\nLoading base model...")
     try:
         base_model, base_tokenizer = load_model(args.base_model)
+        
+        # Quick test generation to verify model works
+        logger.info("Testing base model with sample generation...")
+        test_prompt = format_prompt("Test prompt", "Test input")
+        test_response = generate_response(base_model, base_tokenizer, test_prompt, max_new_tokens=10)
+        logger.info(f"Base model test generation successful: {test_response[:50]}...")
+        
     except Exception as e:
         logger.error(f"Error loading base model: {e}")
         raise
     
+    # Clear GPU cache before loading second model
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        logger.info("Cleared GPU cache before loading fine-tuned model")
+    
     logger.info("\nLoading fine-tuned model...")
     try:
         finetuned_model, finetuned_tokenizer = load_model(str(finetuned_model_path), args.base_model)
+        
+        # Quick test generation to verify model works
+        logger.info("Testing fine-tuned model with sample generation...")
+        test_prompt = format_prompt("Test prompt", "Test input")
+        test_response = generate_response(finetuned_model, finetuned_tokenizer, test_prompt, max_new_tokens=10)
+        logger.info(f"Fine-tuned model test generation successful: {test_response[:50]}...")
+        
     except Exception as e:
         logger.error(f"Error loading fine-tuned model: {e}")
         raise

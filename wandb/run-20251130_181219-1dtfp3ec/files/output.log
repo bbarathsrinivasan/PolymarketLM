@@ -1,0 +1,8 @@
+  0%|                                                                                                                                                                                   | 0/110 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [27:30<00:00, 15.00s/it]
+{'loss': 2.1898, 'grad_norm': 9.43144416809082, 'learning_rate': 9.8e-05, 'epoch': 0.45}
+{'loss': 0.4802, 'grad_norm': 4.107100963592529, 'learning_rate': 0.00019800000000000002, 'epoch': 0.91}
+{'train_runtime': 1651.2235, 'train_samples_per_second': 1.064, 'train_steps_per_second': 0.067, 'train_loss': 1.2512935768474232, 'epoch': 1.0}
+2025-11-30 18:39:50,155 - INFO - Saving LoRA adapter to: models/checkpoints/Polymarket-Gemma-7B-LoRA
+2025-11-30 18:39:51,066 - INFO - Training complete.

@@ -130,7 +130,7 @@ def main():
     parser.add_argument(
         "--instruction",
         type=str,
-        default="Predict the market outcome given the historical data.",
+        default="Predict the market outcome given the historical data and relevant news. Explain your reasoning, especially how the news articles inform your prediction.",
         help="Instruction for the task"
     )
     parser.add_argument(

@@ -73,11 +73,22 @@ class NewsRetriever:
                 # Parse articles
                 articles = []
                 for entry in feed.entries[:50]:  # Limit to 50 most recent articles per feed
+                    # Handle published date - feedparser provides published_parsed or published
+                    published_date = None
+                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                        # Use parsed struct_time
+                        published_date = self._parse_date(entry.published_parsed)
+                    elif hasattr(entry, 'published') and entry.published:
+                        # Use published string or datetime
+                        published_date = self._parse_date(entry.published)
+                    else:
+                        published_date = datetime.now()
+                    
                     article = {
                         'title': entry.get('title', ''),
                         'description': entry.get('description', '') or entry.get('summary', ''),
                         'link': entry.get('link', ''),
-                        'published': self._parse_date(entry.get('published', '')),
+                        'published': published_date,
                         'source': feed.feed.get('title', feed_url) or feed_url
                     }
                     articles.append(article)
@@ -237,25 +248,38 @@ class NewsRetriever:
         return top_articles
     
     def _parse_date(self, date_str: str) -> datetime:
-        """Parse date string from RSS feed."""
+        """Parse date string from RSS feed and normalize to timezone-naive."""
         if not date_str:
             return datetime.now()
         
         try:
-            # Try parsing with feedparser's parsed date
+            # feedparser returns a struct_time object in entry.published_parsed
+            # or a datetime object in entry.published
             if hasattr(date_str, 'timetuple'):
-                return datetime(*date_str.timetuple()[:6])
+                # It's a struct_time or similar
+                dt = datetime(*date_str.timetuple()[:6])
+            elif isinstance(date_str, datetime):
+                # It's already a datetime object
+                dt = date_str
+            else:
+                # Try parsing as string
+                for fmt in ['%a, %d %b %Y %H:%M:%S %z', '%a, %d %b %Y %H:%M:%S %Z', '%Y-%m-%dT%H:%M:%S%z']:
+                    try:
+                        dt = datetime.strptime(str(date_str), fmt)
+                        break
+                    except ValueError:
+                        continue
+                else:
+                    # Fallback to current time
+                    return datetime.now()
             
-            # Try common formats
-            for fmt in ['%a, %d %b %Y %H:%M:%S %z', '%a, %d %b %Y %H:%M:%S %Z', '%Y-%m-%dT%H:%M:%S%z']:
-                try:
-                    return datetime.strptime(date_str, fmt)
-                except ValueError:
-                    continue
+            # Normalize to timezone-naive (remove timezone info)
+            if dt.tzinfo is not None:
+                dt = dt.replace(tzinfo=None)
             
-            # Fallback to current time
-            return datetime.now()
-        except Exception:
+            return dt
+        except Exception as e:
+            logger.debug(f"Error parsing date {date_str}: {e}")
             return datetime.now()
     
     def _get_cached_feed(self, feed_url: str) -> Optional[List[Dict]]:
@@ -273,11 +297,37 @@ class NewsRetriever:
                 cache_data = json.load(f)
             
             # Check if cache is expired
-            cache_time = datetime.fromisoformat(cache_data['timestamp'])
+            cache_time_str = cache_data['timestamp']
+            if isinstance(cache_time_str, str):
+                cache_time = datetime.fromisoformat(cache_time_str)
+            else:
+                cache_time = datetime.now()
+            
+            # Normalize to timezone-naive for comparison
+            if cache_time.tzinfo is not None:
+                cache_time = cache_time.replace(tzinfo=None)
+            
             if datetime.now() - cache_time > timedelta(seconds=self.cache_ttl):
                 return None
             
-            return cache_data['articles']
+            # Restore datetime objects from ISO strings
+            restored_articles = []
+            for article in cache_data['articles']:
+                restored_article = article.copy()
+                if isinstance(restored_article.get('published'), str):
+                    try:
+                        dt = datetime.fromisoformat(restored_article['published'])
+                        # Normalize to timezone-naive
+                        if dt.tzinfo is not None:
+                            dt = dt.replace(tzinfo=None)
+                        restored_article['published'] = dt
+                    except (ValueError, AttributeError):
+                        restored_article['published'] = datetime.now()
+                elif not isinstance(restored_article.get('published'), datetime):
+                    restored_article['published'] = datetime.now()
+                restored_articles.append(restored_article)
+            
+            return restored_articles
         except Exception as e:
             logger.debug(f"Error reading cache: {e}")
             return None
@@ -294,8 +344,12 @@ class NewsRetriever:
             serializable_articles = []
             for article in articles:
                 serializable_article = article.copy()
-                if isinstance(serializable_article.get('published'), datetime):
-                    serializable_article['published'] = serializable_article['published'].isoformat()
+                published = serializable_article.get('published')
+                if isinstance(published, datetime):
+                    # Normalize to timezone-naive before serialization
+                    if published.tzinfo is not None:
+                        published = published.replace(tzinfo=None)
+                    serializable_article['published'] = published.isoformat()
                 serializable_articles.append(serializable_article)
             
             cache_data = {

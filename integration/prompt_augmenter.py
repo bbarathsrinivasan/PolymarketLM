@@ -99,7 +99,8 @@ def augment_prompt_with_news(
         news_section = format_news_section(articles)
         
         # Combine with original input
-        augmented_input = f"{input_text}\n\nRelevant News:\n{news_section}"
+        # Add instruction to consider news in the reasoning
+        augmented_input = f"{input_text}\n\nRelevant News:\n{news_section}\n\nPlease consider the above news articles when making your prediction and explain how they influence your reasoning."
         
         logger.info(f"Augmented prompt with {len(articles)} news articles")
         return augmented_input, articles

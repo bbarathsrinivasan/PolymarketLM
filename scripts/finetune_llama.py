@@ -19,6 +19,7 @@ print("SCRIPT Python:", sys.executable)
 import os
 import argparse
 import json
+import math
 import torch
 from pathlib import Path
 from transformers import (
@@ -278,11 +279,15 @@ def main():
         learning_rate=args.learning_rate,
         logging_steps=args.logging_steps,
         save_steps=args.save_steps,
+        eval_steps=args.save_steps if eval_dataset else None,
+        evaluation_strategy="steps" if eval_dataset else "no",
         fp16=True,
         warmup_steps=100,
         lr_scheduler_type="cosine",
         report_to="wandb",
-        load_best_model_at_end=False
+        load_best_model_at_end=False,
+        metric_for_best_model="eval_loss" if eval_dataset else None,
+        greater_is_better=False
     )
 
     trainer = Trainer(
@@ -295,10 +300,32 @@ def main():
     )
 
     # Train
+    logger.info("Starting training...")
     trainer.train()
+    
+    # Run evaluation after training (if we have a validation set)
+    if eval_dataset is not None:
+        logger.info("Running evaluation on validation set...")
+        eval_metrics = trainer.evaluate()
+        
+        eval_loss = eval_metrics.get("eval_loss")
+        if eval_loss is not None:
+            try:
+                eval_metrics["perplexity"] = math.exp(eval_loss)
+            except OverflowError:
+                eval_metrics["perplexity"] = float("inf")
+        
+        logger.info(f"Eval metrics: {eval_metrics}")
+        # Log on wandb as well
+        if trainer.args.report_to == "wandb":
+            import wandb
+            wandb.log(eval_metrics)
+    else:
+        logger.info("No eval dataset — skipping evaluation.")
 
     # Save LoRA adapter
-    final_path = output_dir / "Llama-7B-LoRA"
+    final_path = output_dir / "Polymarket-Llama-7B-LoRA"
+    logger.info(f"Saving LoRA adapter to: {final_path}")
     model.save_pretrained(str(final_path))
     tokenizer.save_pretrained(str(final_path))
 

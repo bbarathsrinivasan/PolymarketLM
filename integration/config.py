@@ -3,7 +3,7 @@ Configuration for news retrieval and RAG integration.
 """
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import yaml
 import logging
 

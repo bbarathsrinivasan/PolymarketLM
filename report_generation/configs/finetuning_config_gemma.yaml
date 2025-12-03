@@ -30,7 +30,7 @@ output_dir: models/checkpoints
 
 # Limit training to ~30 minutes using max_steps (overrides num_epochs)
 # Based on ~69s per step: 30 minutes = 1800s / 69s ≈ 26 steps
-max_steps: 30
+max_steps: 20
 
 batch_size: 2
 gradient_accumulation_steps: 16

@@ -26,7 +26,7 @@ output_dir: models/checkpoints
 # Use full dataset - no max_samples limit
 # max_samples: null
 # Limit training to ~30 minutes using max_steps (overrides num_epochs)
-max_steps: 30
+max_steps: 15
 batch_size: 4
 gradient_accumulation_steps: 16
 learning_rate: 0.0002

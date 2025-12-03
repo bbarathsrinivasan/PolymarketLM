@@ -292,6 +292,7 @@ def main():
     parser.add_argument("--output_dir", type=str, default="report_generation/results")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--no_4bit", action="store_true")
+    parser.add_argument("--max_samples", type=int, default=None, help="Limit number of test samples to evaluate (for faster testing)")
     
     args = parser.parse_args()
     
@@ -306,6 +307,12 @@ def main():
         test_dataset = dataset["test"]
     else:
         test_dataset = dataset
+    
+    # Limit test samples if specified
+    if args.max_samples is not None and args.max_samples > 0:
+        if len(test_dataset) > args.max_samples:
+            print(f"Limiting evaluation to {args.max_samples} samples (from {len(test_dataset)})")
+            test_dataset = test_dataset.select(range(args.max_samples))
     
     print(f"\n{'='*60}")
     print(f"Evaluating Fine-tuned Gemma Model")

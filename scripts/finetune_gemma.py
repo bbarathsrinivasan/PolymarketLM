@@ -331,6 +331,7 @@ def main():
         "dataloader_num_workers": 4,  # Speed up data loading
         "dataloader_pin_memory": True,  # Speed up data transfer to GPU
         "remove_unused_columns": True,  # Reduce memory overhead
+        "save_only_model": True,  # Don't save optimizer state (saves disk space)
     }
     
     if args.max_steps is not None:
@@ -358,13 +359,27 @@ def main():
         logger.info("GPU cache cleared")
     
     logger.info("Starting training...")
-    trainer.train()
-
-    # Save adapter
+    try:
+        trainer.train()
+    except RuntimeError as e:
+        if "file write failed" in str(e) or "PytorchStreamWriter" in str(e):
+            logger.warning(f"Checkpoint saving failed (likely disk space issue): {e}")
+            logger.warning("Training completed successfully, but checkpoint save failed.")
+            logger.warning("Attempting to save adapter only...")
+        else:
+            raise
+    
+    # Save adapter (even if checkpoint saving failed)
     final_path = output_dir / "Polymarket-Gemma-7B-LoRA"
     logger.info(f"Saving LoRA adapter to: {final_path}")
-    model.save_pretrained(str(final_path))
-    tokenizer.save_pretrained(str(final_path))
+    try:
+        model.save_pretrained(str(final_path))
+        tokenizer.save_pretrained(str(final_path))
+        logger.info("Adapter saved successfully!")
+    except Exception as e:
+        logger.error(f"Failed to save adapter: {e}")
+        logger.error("You may need to free up disk space or check file permissions.")
+        raise
 
     logger.info("Training complete.")
 

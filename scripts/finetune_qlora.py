@@ -446,6 +446,7 @@ def main():
         "dataloader_num_workers": 4,  # Speed up data loading
         "dataloader_pin_memory": True,  # Speed up data transfer to GPU
         "remove_unused_columns": True,  # Reduce memory overhead
+        "save_only_model": True,  # Don't save optimizer state (saves disk space)
     }
     
     # Use max_steps if provided, otherwise use num_epochs
@@ -504,13 +505,25 @@ def main():
             logger.error("  - Increasing gradient_accumulation_steps")
             logger.error("  - Reducing max_length")
             logger.error("  - Using a smaller model")
-        raise
+            raise
+        elif "file write failed" in str(e) or "PytorchStreamWriter" in str(e):
+            logger.warning(f"Checkpoint saving failed (likely disk space issue): {e}")
+            logger.warning("Training completed successfully, but checkpoint save failed.")
+            logger.warning("Will attempt to save adapter only...")
+        else:
+            raise
     
-    # Save final model
+    # Save final model (even if checkpoint saving failed)
     final_model_path = output_dir / "Polymarket-7B-LoRA"
     logger.info(f"Saving final model to {final_model_path}")
-    model.save_pretrained(str(final_model_path))
-    tokenizer.save_pretrained(str(final_model_path))
+    try:
+        model.save_pretrained(str(final_model_path))
+        tokenizer.save_pretrained(str(final_model_path))
+        logger.info("Adapter saved successfully!")
+    except Exception as e:
+        logger.error(f"Failed to save adapter: {e}")
+        logger.error("You may need to free up disk space or check file permissions.")
+        raise
 
     from peft import PeftModel
 

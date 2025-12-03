@@ -4,6 +4,7 @@
 dataset_path: data/fine_tune.jsonl
 test_split: 0.1
 seed: 42
+max_samples: 1000  # Limit evaluation to 1000 samples for faster testing (set to null for full evaluation)
 
 # Model settings
 mistral:

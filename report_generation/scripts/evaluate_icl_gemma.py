@@ -285,6 +285,7 @@ def main():
     parser.add_argument("--output_dir", type=str, default="report_generation/results")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--no_4bit", action="store_true")
+    parser.add_argument("--max_samples", type=int, default=None, help="Limit number of test samples to evaluate (for faster testing)")
     
     args = parser.parse_args()
     
@@ -310,6 +311,12 @@ def main():
                      for ex in test_dataset]
     train_examples = [{"instruction": ex["instruction"], "input": ex.get("input", ""), "output": ex["output"]} 
                      for ex in train_dataset]
+    
+    # Limit test samples if specified
+    if args.max_samples is not None and args.max_samples > 0:
+        if len(test_examples) > args.max_samples:
+            print(f"Limiting evaluation to {args.max_samples} samples (from {len(test_examples)})")
+            test_examples = test_examples[:args.max_samples]
     
     # Load model
     model, tokenizer = load_model_and_tokenizer(args.model_name, use_4bit=not args.no_4bit)

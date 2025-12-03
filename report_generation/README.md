@@ -41,6 +41,7 @@ python scripts/finetune_gemma.py \
 ```bash
 python report_generation/scripts/evaluate_icl_mistral.py \
     --num_shots 0 \
+    --max_samples 1000 \
     --output_dir report_generation/results
 ```
 
@@ -48,6 +49,7 @@ python report_generation/scripts/evaluate_icl_mistral.py \
 ```bash
 python report_generation/scripts/evaluate_icl_gemma.py \
     --num_shots 0 \
+    --max_samples 1000 \
     --output_dir report_generation/results
 ```
 
@@ -58,6 +60,7 @@ python report_generation/scripts/evaluate_icl_gemma.py \
 python report_generation/scripts/evaluate_icl_mistral.py \
     --num_shots 3 \
     --selection random \
+    --max_samples 1000 \
     --output_dir report_generation/results
 ```
 
@@ -66,6 +69,7 @@ python report_generation/scripts/evaluate_icl_mistral.py \
 python report_generation/scripts/evaluate_icl_gemma.py \
     --num_shots 3 \
     --selection random \
+    --max_samples 1000 \
     --output_dir report_generation/results
 ```
 
@@ -75,6 +79,7 @@ python report_generation/scripts/evaluate_icl_gemma.py \
 ```bash
 python report_generation/scripts/evaluate_finetuned_mistral.py \
     --adapter_path models/checkpoints/Polymarket-7B-LoRA \
+    --max_samples 1000 \
     --output_dir report_generation/results
 ```
 
@@ -82,6 +87,7 @@ python report_generation/scripts/evaluate_finetuned_mistral.py \
 ```bash
 python report_generation/scripts/evaluate_finetuned_gemma.py \
     --adapter_path models/checkpoints/Polymarket-Gemma-7B-LoRA \
+    --max_samples 1000 \
     --output_dir report_generation/results
 ```
 

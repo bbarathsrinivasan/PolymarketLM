@@ -33,35 +33,60 @@ We fine-tune and evaluate LLMs on three Polymarket prediction tasks:
 
 ### 1.2 Data Description
 
-**Dataset source**: Polymarket prediction market data (raw CSVs)
+**Dataset source**: Polymarket prediction market data (raw CSVs processed into `data/fine_tune.jsonl`)
 
 **Train / Dev / Test counts**:
-- **Total examples**: ~1,954
-  - Outcome prediction: 474
-  - Manipulation detection: 474
-  - User classification: ~1,006
-- **Train**: ~1,759 (90%)
-- **Test**: ~195 (10%)
+- **Total examples**: 77,500
+  - Outcome prediction: 37,860
+  - Manipulation detection: 37,860
+  - User classification: 1,780
+- **Train**: 69,750 (90%)
+- **Test**: 7,750 (10%)
 - **Dev**: None (using test set for validation)
 
 **How you split them**: 
 - Random split with seed=42
-- Stratified by task type to ensure balanced distribution
+- Split performed after loading all examples from JSONL
+- Test split ensures representation of all three task types
 
-**Example data instance**:
+**Example data instances**:
+
+**Outcome Prediction**:
 ```json
 {
   "instruction": "Predict the market outcome given the historical data.",
-  "input": "Market ID: 561245\nQuestion: Will Nikki Haley win the 2028 US Presidential Election?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 7947957.747257\nPrice History:\n2025-07-11 16:00: 0.0500\n...",
+  "input": "Market ID: 696478\nQuestion: Lanka Premier League: Colombo Strikers vs Galle Marvels (Game 1)\nOutcomes: [\"Colombo Strikers\", \"Galle Marvels\"]\nVolume: nan\nPrice History:\n2025-11-22 01:00: 0.5000\n2025-11-22 01:00: 0.5000\n2025-11-22 02:00: 0.5000\n...\nTrade Summary: No trades available",
   "output": "No"
 }
 ```
 
+**Manipulation Detection**:
+```json
+{
+  "instruction": "Detect if the following market experienced manipulation (Yes or No).",
+  "input": "Market ID: 502739\nQuestion: Will Daniel Lurie win the San Francisco Mayoral Election?\nVolume: 110209.536077\nPrice History:\n2024-06-21 18:00: 0.4950\n2024-06-26 10:00: 0.8350\n...\nManipulation Indicators Detected: price_spike",
+  "output": "No"
+}
+```
+
+**User Classification**:
+```json
+{
+  "instruction": "Classify the trader based on their history (Noise Trader or Informed Trader).",
+  "input": "User ID: 0x00735153971209e2d27b76aba35abfd96d531977\nTotal Trades: 2\nTotal Volume: 103.62\nAverage Trade Size: 51.81\nActive Markets: 1\nTrades per Day: 2.00\nProfit: -0.05\nWin Rate: 50.0%",
+  "output": "Noise Trader"
+}
+```
+
 **Notes on data quality, diversity, domain**:
-- Data quality: Generally good, some missing price data for inactive markets
-- Diversity: Covers various market types (elections, sports, politics)
-- Domain: Financial/prediction markets
-- Challenges: Some markets have sparse data, price spikes may indicate manipulation
+- **Data quality**: Generally good, some missing price data for inactive markets (marked as "nan" or "No price data available")
+- **Diversity**: Covers various market types including elections, sports (cricket, football), politics, and other events
+- **Domain**: Financial/prediction markets with real-world trading data
+- **Challenges**: 
+  - Some markets have sparse data or no trades
+  - Price spikes may indicate manipulation but require careful interpretation
+  - User classification has fewer examples (1,780) compared to market tasks (37,860 each)
+  - Input lengths vary: outcome/manipulation tasks have longer inputs (~700-750 chars) with price history, while user classification has shorter inputs (~180 chars)
 
 ### 1.3 Ethical Considerations
 

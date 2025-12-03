@@ -17,6 +17,8 @@ print("SCRIPT Transformers path:", transformers.__file__)
 print("SCRIPT Python:", sys.executable)
 
 import os
+# Fix tokenizers parallelism warning when using dataloader_num_workers
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import argparse
 import json
 import math

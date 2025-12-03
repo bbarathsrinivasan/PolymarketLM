@@ -23,9 +23,10 @@
 dataset_path: data/fine_tune.jsonl
 model_name: mistralai/Mistral-7B-Instruct-v0.2
 output_dir: models/checkpoints
-# max_samples: null   # or remove this completely
-# num_epochs: null    # remove or comment out
-max_steps: 800      # YOU choose this number
+# Use full dataset - no max_samples limit
+# max_samples: null
+# Limit training to ~30 minutes using max_steps (overrides num_epochs)
+max_steps: 30
 batch_size: 4
 gradient_accumulation_steps: 16
 learning_rate: 0.0002

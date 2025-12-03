@@ -228,6 +228,12 @@ def main():
         help="Number of training epochs"
     )
     parser.add_argument(
+        "--max_steps",
+        type=int,
+        default=None,
+        help="Maximum number of training steps (overrides num_epochs if set)"
+    )
+    parser.add_argument(
         "--batch_size",
         type=int,
         default=4,
@@ -418,25 +424,34 @@ def main():
     print("TrainingArguments loaded from:", inspect.getfile(TrainingArguments))
     
     # Setup training arguments
-    training_args = TrainingArguments(
-        output_dir=str(output_dir),
-        num_train_epochs=args.num_epochs,
-        per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=args.batch_size if eval_dataset else None,
-        gradient_accumulation_steps=args.gradient_accumulation_steps,
-        learning_rate=args.learning_rate,
-        fp16=True,  # Mixed precision training
-        logging_steps=args.logging_steps,
-        save_steps=args.save_steps,
-        eval_steps=args.save_steps if eval_dataset else None,
-        #evaluation_strategy="steps" if eval_dataset else "no",
-        save_total_limit=2,
-        load_best_model_at_end=False,
-        metric_for_best_model=None,
-        report_to="wandb",  # Change to "wandb" if using Weights & Biases
-        warmup_steps=100,
-        lr_scheduler_type="cosine",
-    )
+    # If max_steps is set, use it instead of num_epochs
+    training_args_dict = {
+        "output_dir": str(output_dir),
+        "per_device_train_batch_size": args.batch_size,
+        "per_device_eval_batch_size": args.batch_size if eval_dataset else None,
+        "gradient_accumulation_steps": args.gradient_accumulation_steps,
+        "learning_rate": args.learning_rate,
+        "fp16": True,  # Mixed precision training
+        "logging_steps": args.logging_steps,
+        "save_steps": args.save_steps,
+        "eval_steps": args.save_steps if eval_dataset else None,
+        "save_total_limit": 2,
+        "load_best_model_at_end": False,
+        "metric_for_best_model": None,
+        "report_to": "wandb",  # Change to "wandb" if using Weights & Biases
+        "warmup_steps": 100,
+        "lr_scheduler_type": "cosine",
+    }
+    
+    # Use max_steps if provided, otherwise use num_epochs
+    if args.max_steps is not None:
+        training_args_dict["max_steps"] = args.max_steps
+        logger.info(f"Using max_steps={args.max_steps} (overrides num_epochs)")
+    else:
+        training_args_dict["num_train_epochs"] = args.num_epochs
+        logger.info(f"Using num_epochs={args.num_epochs}")
+    
+    training_args = TrainingArguments(**training_args_dict)
     
     # Initialize trainer
     trainer = Trainer(

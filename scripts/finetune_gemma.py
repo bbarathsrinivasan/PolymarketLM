@@ -220,6 +220,7 @@ def main():
 
     parser.add_argument("--max_samples", type=int, default=None)
     parser.add_argument("--num_epochs", type=int, default=3)
+    parser.add_argument("--max_steps", type=int, default=None, help="Maximum number of training steps (overrides num_epochs if set)")
     parser.add_argument("--batch_size", type=int, default=4)
     parser.add_argument("--gradient_accumulation_steps", type=int, default=4)
     parser.add_argument("--learning_rate", type=float, default=2e-4)
@@ -307,25 +308,34 @@ def main():
         tokenizer=tokenizer, mlm=False
     )
 
-    training_args = TrainingArguments(
-        output_dir=str(output_dir),
-        num_train_epochs=args.num_epochs,
-        per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=args.batch_size,
-        gradient_accumulation_steps=args.gradient_accumulation_steps,
-        learning_rate=args.learning_rate,
-        logging_steps=args.logging_steps,
-        save_steps=args.save_steps,
-        eval_steps=args.save_steps if eval_dataset else None,
-        fp16=True,
-        warmup_steps=100,
-        lr_scheduler_type="cosine",
-        report_to="wandb",
-        load_best_model_at_end=False,
-        greater_is_better=False,
-        gradient_checkpointing=True,  # Reduce memory usage
-        optim="adamw_torch"  # Use torch optimizer for better memory efficiency
-    )
+    # Use max_steps if provided, otherwise use num_epochs
+    training_args_dict = {
+        "output_dir": str(output_dir),
+        "per_device_train_batch_size": args.batch_size,
+        "per_device_eval_batch_size": args.batch_size,
+        "gradient_accumulation_steps": args.gradient_accumulation_steps,
+        "learning_rate": args.learning_rate,
+        "logging_steps": args.logging_steps,
+        "save_steps": args.save_steps,
+        "eval_steps": args.save_steps if eval_dataset else None,
+        "fp16": True,
+        "warmup_steps": 100,
+        "lr_scheduler_type": "cosine",
+        "report_to": "wandb",
+        "load_best_model_at_end": False,
+        "greater_is_better": False,
+        "gradient_checkpointing": True,  # Reduce memory usage
+        "optim": "adamw_torch"  # Use torch optimizer for better memory efficiency
+    }
+    
+    if args.max_steps is not None:
+        training_args_dict["max_steps"] = args.max_steps
+        logger.info(f"Using max_steps={args.max_steps} (overrides num_epochs)")
+    else:
+        training_args_dict["num_train_epochs"] = args.num_epochs
+        logger.info(f"Using num_epochs={args.num_epochs}")
+    
+    training_args = TrainingArguments(**training_args_dict)
 
     trainer = Trainer(
         model=model,

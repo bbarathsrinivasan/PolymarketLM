@@ -1,0 +1,26 @@
+# In-Context Learning Configuration
+
+# Dataset settings
+dataset_path: data/fine_tune.jsonl
+test_split: 0.1
+seed: 42
+
+# Model settings
+mistral:
+  model_name: mistralai/Mistral-7B-Instruct-v0.2
+  use_4bit: true
+
+gemma:
+  model_name: google/gemma-7b-it
+  use_4bit: true
+
+# ICL settings
+num_shots: 3  # Number of few-shot examples (0 for zero-shot)
+selection_method: random  # Options: random, by_task
+max_input_tokens: 2048
+max_new_tokens: 50
+temperature: 0.0
+
+# Output settings
+output_dir: report_generation/results
+

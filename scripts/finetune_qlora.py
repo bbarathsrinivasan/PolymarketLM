@@ -441,6 +441,9 @@ def main():
         "report_to": "wandb",  # Change to "wandb" if using Weights & Biases
         "warmup_steps": 100,
         "lr_scheduler_type": "cosine",
+        "dataloader_num_workers": 4,  # Speed up data loading
+        "dataloader_pin_memory": True,  # Speed up data transfer to GPU
+        "remove_unused_columns": True,  # Reduce memory overhead
     }
     
     # Use max_steps if provided, otherwise use num_epochs

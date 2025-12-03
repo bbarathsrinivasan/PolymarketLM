@@ -325,7 +325,10 @@ def main():
         "load_best_model_at_end": False,
         "greater_is_better": False,
         "gradient_checkpointing": True,  # Reduce memory usage
-        "optim": "adamw_torch"  # Use torch optimizer for better memory efficiency
+        "optim": "adamw_torch",  # Use torch optimizer for better memory efficiency
+        "dataloader_num_workers": 4,  # Speed up data loading
+        "dataloader_pin_memory": True,  # Speed up data transfer to GPU
+        "remove_unused_columns": True,  # Reduce memory overhead
     }
     
     if args.max_steps is not None:

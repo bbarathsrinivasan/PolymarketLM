@@ -25,15 +25,15 @@ model_name: mistralai/Mistral-7B-Instruct-v0.2
 output_dir: models/checkpoints
 # Use full dataset - no max_samples limit
 # max_samples: null
-# Optimized for 15 minutes: More steps with faster training
-# Target: 150-200 steps in 15 minutes (~4-6s per step)
-max_steps: 150
-batch_size: 4  # Increased for faster training (if OOM, reduce to 4)
-gradient_accumulation_steps: 16  # Reduced to maintain effective batch=64
+# Optimized for 15 minutes: Aggressive speed optimizations
+# Target: 80-100 steps in 15 minutes (~9-11s per step)
+max_steps: 80
+batch_size: 4
+gradient_accumulation_steps: 16
 learning_rate: 0.0002
-max_length: 96  # Further reduced for faster processing
-lora_r: 4  # Further reduced for faster training
-lora_alpha: 8
+max_length: 64  # Very short sequences for maximum speed
+lora_r: 2  # Minimal LoRA for maximum speed
+lora_alpha: 4
 lora_dropout: 0.1
 test_split: 0.1
 no_4bit: false

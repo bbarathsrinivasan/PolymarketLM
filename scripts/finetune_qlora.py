@@ -305,6 +305,28 @@ def main():
             default_value = parser.get_default(key)
             # If arg set to default (or None), override with config value
             if current_value == default_value or current_value is None:
+                # Get the expected type from the argument parser
+                for action in parser._actions:
+                    if action.dest == key:
+                        # Convert value to expected type
+                        if action.type is not None:
+                            try:
+                                if action.type == float:
+                                    # Handle both numeric and string (including scientific notation)
+                                    if isinstance(value, str):
+                                        value = float(value)
+                                    else:
+                                        value = float(value)
+                                elif action.type == int:
+                                    value = int(value)
+                                elif action.type == bool:
+                                    if isinstance(value, str):
+                                        value = value.lower() in ('true', '1', 'yes', 'on')
+                                    else:
+                                        value = bool(value)
+                            except (ValueError, TypeError) as e:
+                                logger.warning(f"Could not convert {key}={value} (type: {type(value)}) to {action.type}: {e}, using as-is")
+                        break
                 setattr(args, key, value)
     
     # Validate paths

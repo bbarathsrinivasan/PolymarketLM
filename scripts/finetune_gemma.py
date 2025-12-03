@@ -237,6 +237,28 @@ def main():
     cfg = load_config(args.config)
     for k, v in cfg.items():
         if hasattr(args, k):
+            # Get the expected type from the argument parser
+            for action in parser._actions:
+                if action.dest == k:
+                    # Convert value to expected type
+                    if action.type is not None:
+                        try:
+                            if action.type == float:
+                                # Handle both numeric and string (including scientific notation)
+                                if isinstance(v, str):
+                                    v = float(v)
+                                else:
+                                    v = float(v)
+                            elif action.type == int:
+                                v = int(v)
+                            elif action.type == bool:
+                                if isinstance(v, str):
+                                    v = v.lower() in ('true', '1', 'yes', 'on')
+                                else:
+                                    v = bool(v)
+                        except (ValueError, TypeError) as e:
+                            logger.warning(f"Could not convert {k}={v} (type: {type(v)}) to {action.type}: {e}, using as-is")
+                    break
             setattr(args, k, v)
 
     dataset_path = Path(args.dataset_path)

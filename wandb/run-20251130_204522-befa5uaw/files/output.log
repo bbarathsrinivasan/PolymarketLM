@@ -1,0 +1,28 @@
+  0%|                                                                                                                                                                                   | 0/110 [00:00<?, ?it/s]/opt/conda/envs/llm-project/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [27:30<00:00, 15.01s/it]
+{'loss': 3.8742, 'grad_norm': 3.882495403289795, 'learning_rate': 8.000000000000001e-06, 'epoch': 0.05}
+{'loss': 3.9825, 'grad_norm': 3.437549591064453, 'learning_rate': 1.8e-05, 'epoch': 0.09}
+{'loss': 3.6846, 'grad_norm': 5.002073287963867, 'learning_rate': 2.8000000000000003e-05, 'epoch': 0.14}
+{'loss': 3.4659, 'grad_norm': 11.773314476013184, 'learning_rate': 3.8e-05, 'epoch': 0.18}
+{'loss': 2.095, 'grad_norm': 7.733501434326172, 'learning_rate': 4.8e-05, 'epoch': 0.23}
+{'loss': 1.4046, 'grad_norm': 7.488038063049316, 'learning_rate': 5.8e-05, 'epoch': 0.27}
+{'loss': 0.7878, 'grad_norm': 7.335628986358643, 'learning_rate': 6.800000000000001e-05, 'epoch': 0.32}
+{'loss': 1.0095, 'grad_norm': 9.170933723449707, 'learning_rate': 7.800000000000001e-05, 'epoch': 0.36}
+{'loss': 0.6959, 'grad_norm': 6.783614635467529, 'learning_rate': 8.800000000000001e-05, 'epoch': 0.41}
+{'loss': 0.7336, 'grad_norm': 9.938345909118652, 'learning_rate': 9.8e-05, 'epoch': 0.45}
+{'loss': 0.6311, 'grad_norm': 6.09496545791626, 'learning_rate': 0.00010800000000000001, 'epoch': 0.5}
+{'loss': 0.5443, 'grad_norm': 6.2385993003845215, 'learning_rate': 0.000118, 'epoch': 0.55}
+{'loss': 0.5107, 'grad_norm': 3.351341962814331, 'learning_rate': 0.00012800000000000002, 'epoch': 0.59}
+{'loss': 0.4497, 'grad_norm': 4.844598770141602, 'learning_rate': 0.000138, 'epoch': 0.64}
+{'loss': 0.497, 'grad_norm': 3.0696022510528564, 'learning_rate': 0.000148, 'epoch': 0.68}
+{'loss': 0.4206, 'grad_norm': 3.1637723445892334, 'learning_rate': 0.00015800000000000002, 'epoch': 0.73}
+{'loss': 0.4407, 'grad_norm': 1.9183778762817383, 'learning_rate': 0.000168, 'epoch': 0.77}
+{'loss': 0.456, 'grad_norm': 4.683826446533203, 'learning_rate': 0.00017800000000000002, 'epoch': 0.82}
+{'loss': 0.4173, 'grad_norm': 5.3745598793029785, 'learning_rate': 0.000188, 'epoch': 0.86}
+{'loss': 0.4514, 'grad_norm': 4.181023120880127, 'learning_rate': 0.00019800000000000002, 'epoch': 0.91}
+{'loss': 0.444, 'grad_norm': 4.754809856414795, 'learning_rate': 0.00013090169943749476, 'epoch': 0.95}
+{'loss': 0.4205, 'grad_norm': 2.736511468887329, 'learning_rate': 4.8943483704846475e-06, 'epoch': 1.0}
+{'train_runtime': 1651.7014, 'train_samples_per_second': 1.064, 'train_steps_per_second': 0.067, 'train_loss': 1.2462203155864369, 'epoch': 1.0}
+2025-11-30 21:12:53,663 - INFO - Saving LoRA adapter to: models/checkpoints/Polymarket-Gemma-7B-LoRA
+2025-11-30 21:12:57,127 - INFO - Training complete.

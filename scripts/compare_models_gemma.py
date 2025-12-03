@@ -541,7 +541,7 @@ def main():
     parser.add_argument(
         "--adapter_path",
         type=str,
-        default="models/checkpoints/Gemma-7B-LoRA",
+        default="models/checkpoints/Polymarket-Gemma-7B-LoRA",
         help="Path to LoRA adapter (not merged model)"
     )
     parser.add_argument(
@@ -586,7 +586,7 @@ def main():
     if not adapter_path.exists():
         logger.error(f"Adapter path not found: {adapter_path}")
         logger.error("Make sure you have trained the model first using finetune_llama.py")
-        logger.error("Expected path: models/checkpoints/Gemma-7B-LoRA")
+        logger.error("Expected path: models/checkpoints/Ploymarket_Gemma-7B-LoRA")
         return
     
     logger.info("=" * 80)

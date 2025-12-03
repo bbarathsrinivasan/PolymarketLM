@@ -28,23 +28,20 @@ output_dir: models/checkpoints
 # Use full dataset - no max_samples limit
 # max_samples: null
 
-# Limit training to ~30 minutes using max_steps (overrides num_epochs)
-# Based on ~69s per step: 30 minutes = 1800s / 69s ≈ 26 steps
-max_steps: 20
-
-batch_size: 2
-gradient_accumulation_steps: 16
+# Optimized for 15 minutes: More steps with faster training
+# Target: 120-150 steps in 15 minutes (~6-7s per step)
+max_steps: 120
+batch_size: 4  # Increased for faster training (if OOM, reduce to 2)
+gradient_accumulation_steps: 16  # Reduced to maintain effective batch=32
 learning_rate: 0.0002
-max_length: 256
-
-lora_r: 32
-lora_alpha: 32
+max_length: 96  # Further reduced for faster processing
+lora_r: 4  # Further reduced for faster training
+lora_alpha: 8
 lora_dropout: 0.1
-
 test_split: 0.1
 no_4bit: false
-
-save_steps: 400        # increased to reduce save overhead
-logging_steps: 20      # reduces slowdown
+save_steps: 999999  # Disable saving during training (save only at end)
+eval_steps: 999999  # Disable evaluation during training
+logging_steps: 5  # Log every 10 steps for good graph
 report_to: wandb
 run_name: polymarket-gemma-7b-it

@@ -309,7 +309,7 @@ def main():
                 for action in parser._actions:
                     if action.dest == key:
                         # Convert value to expected type
-                        if action.type is not None:
+                        if action.type is not None and value is not None:
                             try:
                                 if action.type == float:
                                     # Handle both numeric and string (including scientific notation)
@@ -389,6 +389,12 @@ def main():
     # Disable cache for training
     model.config.use_cache = False
     
+    # Enable gradient checkpointing to reduce memory
+    if hasattr(model, "gradient_checkpointing_enable"):
+        model.gradient_checkpointing_enable()
+    elif hasattr(model, "base_model") and hasattr(model.base_model, "gradient_checkpointing_enable"):
+        model.base_model.gradient_checkpointing_enable()
+    
     # Tokenize dataset
     logger.info("Tokenizing dataset...")
     train_dataset = train_dataset.map(
@@ -441,6 +447,11 @@ def main():
         eval_dataset=eval_dataset,
         data_collator=data_collator,
     )
+    
+    # Clear GPU cache before training
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        logger.info("GPU cache cleared")
     
     # Train
     logger.info("Starting training...")

@@ -1,21 +1,42 @@
 # Fine-tuning Configuration for Mistral-7B-Instruct
+# Quick training config: ~30 minutes with subset of data
+
+# dataset_path: data/fine_tune.jsonl
+# model_name: mistralai/Mistral-7B-Instruct-v0.2
+# output_dir: models/checkpoints
+# max_samples: 800
+# num_epochs: 3
+# batch_size: 4
+# gradient_accumulation_steps: 16
+# learning_rate: 0.0002
+# max_length: 384
+# lora_r: 32
+# lora_alpha: 32
+# lora_dropout: 0.1
+# test_split: 0.1
+# no_4bit: false
+# save_steps: 200
+# logging_steps: 5
+# report_to: wandb
+# run_name: polymarket-mistral-7b-instruct
 
 dataset_path: data/fine_tune.jsonl
 model_name: mistralai/Mistral-7B-Instruct-v0.2
 output_dir: models/checkpoints
-max_samples: null
-num_epochs: 3
+# max_samples: null   # or remove this completely
+# num_epochs: null    # remove or comment out
+max_steps: 800      # YOU choose this number
 batch_size: 4
-gradient_accumulation_steps: 4
+gradient_accumulation_steps: 16
 learning_rate: 0.0002
-max_length: 512
+max_length: 384
 lora_r: 32
 lora_alpha: 32
 lora_dropout: 0.1
 test_split: 0.1
 no_4bit: false
 save_steps: 200
-logging_steps: 50
+logging_steps: 20     # increase to reduce overhead
 report_to: wandb
 run_name: polymarket-mistral-7b-instruct
 

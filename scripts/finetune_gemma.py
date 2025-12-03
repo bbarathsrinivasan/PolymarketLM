@@ -241,7 +241,7 @@ def main():
             for action in parser._actions:
                 if action.dest == k:
                     # Convert value to expected type
-                    if action.type is not None:
+                    if action.type is not None and v is not None:
                         try:
                             if action.type == float:
                                 # Handle both numeric and string (including scientific notation)
@@ -283,6 +283,12 @@ def main():
     )
 
     model.config.use_cache = False
+    
+    # Enable gradient checkpointing to reduce memory
+    if hasattr(model, "gradient_checkpointing_enable"):
+        model.gradient_checkpointing_enable()
+    elif hasattr(model, "base_model") and hasattr(model.base_model, "gradient_checkpointing_enable"):
+        model.base_model.gradient_checkpointing_enable()
 
     train_dataset = train_dataset.map(
         lambda x: tokenize_dataset(x, tokenizer, args.max_length),
@@ -316,7 +322,9 @@ def main():
         lr_scheduler_type="cosine",
         report_to="wandb",
         load_best_model_at_end=False,
-        greater_is_better=False
+        greater_is_better=False,
+        gradient_checkpointing=True,  # Reduce memory usage
+        optim="adamw_torch"  # Use torch optimizer for better memory efficiency
     )
 
     trainer = Trainer(
@@ -328,6 +336,12 @@ def main():
         data_collator=data_collator
     )
 
+    # Clear GPU cache before training
+    import torch
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        logger.info("GPU cache cleared")
+    
     logger.info("Starting training...")
     trainer.train()
 

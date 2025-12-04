@@ -10,6 +10,7 @@ import json
 import re
 import sys
 import math
+import time
 from pathlib import Path
 from tqdm import tqdm
 from collections import defaultdict
@@ -317,11 +318,15 @@ def evaluate_rag(model, tokenizer, examples: List[Dict], search_retriever: Searc
     
     format_prompt_fn = format_prompt_mistral if model_type == "mistral" else format_prompt_gemma
     
-    for ex in tqdm(examples, desc=f"Evaluating RAG ({model_type})"):
+    for idx, ex in enumerate(tqdm(examples, desc=f"Evaluating RAG ({model_type})")):
         instruction = ex["instruction"]
         input_text = ex.get("input", "")
         ground_truth = ex["output"]
         task_type = infer_task_type(instruction)
+        
+        # Add delay between searches to avoid rate limiting (except for first search)
+        if idx > 0:
+            time.sleep(1)  # 1 second delay between searches
         
         # Augment prompt with search results
         try:
@@ -334,6 +339,26 @@ def evaluate_rag(model, tokenizer, examples: List[Dict], search_retriever: Searc
                 search_retriever=search_retriever,
                 cache_dir=str(search_retriever.cache_dir) if search_retriever.cache_dir else None
             )
+            
+            # If no results found, try a simpler query without "news recent" suffix
+            if not search_results:
+                market_question = extract_market_question(input_text)
+                if market_question:
+                    try:
+                        # Try without the "news recent" enhancement
+                        simple_results = search_retriever.get_relevant_search_results(
+                            market_question,
+                            num_results=num_search_results,
+                            enhance_query=False  # Don't add "news recent"
+                        )
+                        if simple_results:
+                            search_results = simple_results
+                            # Format augmented input manually
+                            from integration.prompt_augmenter import format_search_section
+                            search_section = format_search_section(search_results)
+                            augmented_input = f"{input_text}\n\nRelevant Information from Web Search:\n{search_section}\n\nPlease analyze the above search results and explain how they inform your prediction. Consider the credibility of sources, recency of information, and how the information relates to the market question."
+                    except Exception:
+                        pass  # Keep original augmented_input if this also fails
         except Exception as e:
             print(f"Error retrieving search results: {e}")
             search_results = []
@@ -651,6 +676,10 @@ def main():
         # Print improvement
         accuracy_improvement = (rag_metrics['overall']['accuracy'] - baseline_metrics['overall']['accuracy']) * 100
         print(f"\nAccuracy Improvement: {accuracy_improvement:+.2f} percentage points")
+        
+        # Count how many examples had search results
+        examples_with_results = sum(1 for r in rag_results if r.get('search_results'))
+        print(f"Examples with search results: {examples_with_results}/{len(rag_results)} ({examples_with_results/len(rag_results)*100:.1f}%)")
     
     print(f"\n{'='*60}")
     print("Evaluation Complete!")

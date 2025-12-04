@@ -119,9 +119,32 @@ This will generate:
 - Method comparison (most/least robust)
 - Task-specific error breakdown
 
-### Step 6: Run RAG Evaluation (Additional Experiment)
+### Step 6: Generate Dummy RAG Dataset (Optional)
+
+Create a dataset with examples that have web-searchable content:
+
+```bash
+python report_generation/scripts/generate_dummy_rag_dataset.py \
+    --output_path data/dummy_rag_dataset.jsonl \
+    --num_examples 50
+```
+
+This creates 50 examples covering topics like:
+- Current events (elections, politics)
+- Financial markets (stocks, crypto)
+- Sports (NFL, NBA, soccer)
+- Technology (AI, tech companies)
+- Entertainment, science, environment
+
+These examples are designed to have recent web coverage, making them ideal for RAG evaluation.
+
+### Step 7: Run RAG Evaluation (Additional Experiment)
 
 Evaluate fine-tuned models with retrieval-augmented generation (RAG):
+
+**Note**: You can use either:
+- Real dataset: `data/fine_tune.jsonl` (may have limited web coverage for some examples)
+- Dummy dataset: `data/dummy_rag_dataset.jsonl` (designed for web-searchable content)
 
 ```bash
 # Evaluate both Mistral and Gemma with RAG
@@ -155,9 +178,13 @@ This will:
 - `rag_comparison_mistral.csv/md` - Mistral comparison tables
 - `rag_comparison_gemma.csv/md` - Gemma comparison tables
 
-**Note**: RAG evaluation uses web search (DuckDuckGo by default), so it requires internet connection. Search results are cached to avoid redundant API calls.
+**Note**: 
+- RAG evaluation uses web search (DuckDuckGo by default), so it requires internet connection
+- Search results are cached to avoid redundant API calls
+- For better results, use the dummy dataset (`data/dummy_rag_dataset.jsonl`) which has examples with web-searchable content
+- See `RAG_EXPLANATION.md` for why we call it RAG even though we only use search
 
-### Step 7: Update Report
+### Step 8: Update Report
 
 1. Copy results from `report_generation/outputs/comparison_tables.md` to `report.md`
 2. Fill in RAG experiment results from `rag_comparison_*.md` files

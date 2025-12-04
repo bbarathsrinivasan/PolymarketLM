@@ -58,21 +58,38 @@ python report_generation/scripts/evaluate_finetuned_gemma.py \
     --max_samples 1000
 ```
 
-### 4. Run RAG Evaluation (Additional Experiment)
+### 4. Generate Dummy RAG Dataset (Optional but Recommended)
+
+Create examples with web-searchable content:
 
 ```bash
-# Evaluate both models with RAG (200 examples)
+python report_generation/scripts/generate_dummy_rag_dataset.py \
+    --output_path data/dummy_rag_dataset.jsonl \
+    --num_examples 50
+```
+
+### 5. Run RAG Evaluation (Additional Experiment)
+
+```bash
+# Using dummy dataset (recommended - has web-searchable content)
 python report_generation/scripts/evaluate_rag_integration.py \
-    --num_examples 200 \
+    --dataset_path data/dummy_rag_dataset.jsonl \
+    --num_examples 50 \
     --search_provider duckduckgo \
     --num_search_results 5
 
-# Or evaluate individually
-python report_generation/scripts/evaluate_rag_integration.py --models mistral --num_examples 200
-python report_generation/scripts/evaluate_rag_integration.py --models gemma --num_examples 200
+# Or using real dataset
+python report_generation/scripts/evaluate_rag_integration.py \
+    --num_examples 50 \
+    --search_provider duckduckgo \
+    --num_search_results 5
+
+# Evaluate individually
+python report_generation/scripts/evaluate_rag_integration.py --models mistral --num_examples 50
+python report_generation/scripts/evaluate_rag_integration.py --models gemma --num_examples 50
 ```
 
-### 5. Generate Tables and Analysis
+### 6. Generate Tables and Analysis
 
 ```bash
 # Comparison tables
@@ -82,7 +99,7 @@ python report_generation/scripts/generate_comparison_tables.py
 python report_generation/scripts/error_analysis.py
 ```
 
-### 6. Update Report
+### 7. Update Report
 
 1. Open `report_generation/report.md`
 2. Fill in all `[TO FILL]` placeholders with results from:
@@ -96,6 +113,10 @@ python report_generation/scripts/error_analysis.py
 After running all steps, you should have:
 
 ```
+data/
+├── fine_tune.jsonl
+└── dummy_rag_dataset.jsonl  # Optional: for RAG evaluation
+
 report_generation/
 ├── results/
 │   ├── icl_mistral_zero_shot.json

@@ -1,0 +1,322 @@
+"""
+Generate a dummy dataset of 50 examples with questions that have relevant web data.
+
+These examples are designed to have searchable content on the web, making them
+suitable for RAG evaluation where we need actual search results.
+"""
+
+import json
+import random
+from pathlib import Path
+from datetime import datetime
+
+# Examples with topics that are likely to have recent web coverage
+DUMMY_EXAMPLES = [
+    # Current Events & Politics (high web coverage)
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY001\nQuestion: Will Donald Trump win the 2024 US Presidential Election?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 5000000.0\nPrice History:\n2024-10-01 00:00: 0.5200\n2024-10-15 00:00: 0.5100\n2024-11-01 00:00: 0.5300\nTrade Summary: High volume trading activity",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY002\nQuestion: Will Bitcoin reach $100,000 by December 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2500000.0\nPrice History:\n2024-10-01 00:00: 0.3500\n2024-10-15 00:00: 0.4200\n2024-11-01 00:00: 0.4800\nTrade Summary: Moderate trading volume",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY003\nQuestion: Will the Federal Reserve cut interest rates in Q4 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 3000000.0\nPrice History:\n2024-09-01 00:00: 0.6000\n2024-10-01 00:00: 0.6500\n2024-11-01 00:00: 0.7000\nTrade Summary: Increasing confidence",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY004\nQuestion: Will Apple (AAPL) stock price exceed $200 by end of 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1800000.0\nPrice History:\n2024-10-01 00:00: 0.4500\n2024-10-15 00:00: 0.4700\n2024-11-01 00:00: 0.4900\nTrade Summary: Steady trading",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY005\nQuestion: Will the US economy enter a recession in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 4000000.0\nPrice History:\n2024-09-01 00:00: 0.2500\n2024-10-01 00:00: 0.2000\n2024-11-01 00:00: 0.1800\nTrade Summary: Low probability maintained",
+        "output": "No"
+    },
+    # Sports (recent results available)
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY006\nQuestion: Will the Kansas City Chiefs win Super Bowl LVIII?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2200000.0\nPrice History:\n2024-01-01 00:00: 0.3000\n2024-01-15 00:00: 0.3500\n2024-02-01 00:00: 0.4000\nTrade Summary: Playoff performance",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY007\nQuestion: Will Lionel Messi win the 2024 Ballon d'Or?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1500000.0\nPrice History:\n2024-09-01 00:00: 0.5500\n2024-10-01 00:00: 0.6000\n2024-11-01 00:00: 0.6500\nTrade Summary: Strong performance",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY008\nQuestion: Will the Los Angeles Lakers make the 2024 NBA playoffs?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1900000.0\nPrice History:\n2024-10-01 00:00: 0.6000\n2024-10-15 00:00: 0.6200\n2024-11-01 00:00: 0.6500\nTrade Summary: Season performance",
+        "output": "Yes"
+    },
+    # Technology & AI (high web coverage)
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY009\nQuestion: Will OpenAI release GPT-5 in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2800000.0\nPrice History:\n2024-09-01 00:00: 0.4000\n2024-10-01 00:00: 0.4500\n2024-11-01 00:00: 0.5000\nTrade Summary: Industry speculation",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY010\nQuestion: Will Tesla deliver over 2 million vehicles in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 3200000.0\nPrice History:\n2024-09-01 00:00: 0.7000\n2024-10-01 00:00: 0.7500\n2024-11-01 00:00: 0.8000\nTrade Summary: Production reports",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY011\nQuestion: Will Nvidia stock price exceed $150 by end of 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 3500000.0\nPrice History:\n2024-10-01 00:00: 0.8500\n2024-10-15 00:00: 0.8800\n2024-11-01 00:00: 0.9000\nTrade Summary: AI chip demand",
+        "output": "Yes"
+    },
+    # International Politics
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY012\nQuestion: Will Vladimir Putin remain President of Russia in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2100000.0\nPrice History:\n2024-09-01 00:00: 0.9500\n2024-10-01 00:00: 0.9600\n2024-11-01 00:00: 0.9700\nTrade Summary: Political stability",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY013\nQuestion: Will the UK hold a general election in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1800000.0\nPrice History:\n2024-09-01 00:00: 0.6000\n2024-10-01 00:00: 0.7000\n2024-11-01 00:00: 0.8000\nTrade Summary: Political developments",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY014\nQuestion: Will China's GDP growth exceed 5% in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2400000.0\nPrice History:\n2024-09-01 00:00: 0.5500\n2024-10-01 00:00: 0.6000\n2024-11-01 00:00: 0.6500\nTrade Summary: Economic indicators",
+        "output": "Yes"
+    },
+    # Climate & Environment
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY015\nQuestion: Will 2024 be the hottest year on record globally?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1600000.0\nPrice History:\n2024-09-01 00:00: 0.8000\n2024-10-01 00:00: 0.8500\n2024-11-01 00:00: 0.9000\nTrade Summary: Climate data",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY016\nQuestion: Will the Amazon rainforest deforestation rate decrease in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1200000.0\nPrice History:\n2024-09-01 00:00: 0.3500\n2024-10-01 00:00: 0.4000\n2024-11-01 00:00: 0.4500\nTrade Summary: Environmental policy",
+        "output": "No"
+    },
+    # Entertainment & Media
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY017\nQuestion: Will Taylor Swift's Eras Tour gross over $1 billion in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1400000.0\nPrice History:\n2024-09-01 00:00: 0.9000\n2024-10-01 00:00: 0.9200\n2024-11-01 00:00: 0.9500\nTrade Summary: Tour performance",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY018\nQuestion: Will Barbie movie win the 2024 Academy Award for Best Picture?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1100000.0\nPrice History:\n2024-01-01 00:00: 0.2000\n2024-02-01 00:00: 0.1500\n2024-03-01 00:00: 0.1000\nTrade Summary: Award season",
+        "output": "No"
+    },
+    # Healthcare & Science
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY019\nQuestion: Will a new COVID-19 variant cause major outbreaks in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2000000.0\nPrice History:\n2024-09-01 00:00: 0.3000\n2024-10-01 00:00: 0.2500\n2024-11-01 00:00: 0.2000\nTrade Summary: Health monitoring",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY020\nQuestion: Will NASA successfully launch the Artemis II mission in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1700000.0\nPrice History:\n2024-09-01 00:00: 0.4000\n2024-10-01 00:00: 0.3500\n2024-11-01 00:00: 0.3000\nTrade Summary: Mission delays",
+        "output": "No"
+    },
+    # More examples to reach 50...
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY021\nQuestion: Will the S&P 500 index close above 5,000 points in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 4000000.0\nPrice History:\n2024-09-01 00:00: 0.6000\n2024-10-01 00:00: 0.6500\n2024-11-01 00:00: 0.7000\nTrade Summary: Market performance",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY022\nQuestion: Will Google release a new Pixel phone in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1300000.0\nPrice History:\n2024-09-01 00:00: 0.9000\n2024-10-01 00:00: 0.9500\n2024-11-01 00:00: 0.9800\nTrade Summary: Product launches",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY023\nQuestion: Will the European Union implement new AI regulations in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1500000.0\nPrice History:\n2024-09-01 00:00: 0.7000\n2024-10-01 00:00: 0.7500\n2024-11-01 00:00: 0.8000\nTrade Summary: Regulatory progress",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY024\nQuestion: Will Meta (Facebook) stock price exceed $400 in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2600000.0\nPrice History:\n2024-10-01 00:00: 0.4500\n2024-10-15 00:00: 0.5000\n2024-11-01 00:00: 0.5500\nTrade Summary: Tech stock performance",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY025\nQuestion: Will the US unemployment rate fall below 3.5% in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2300000.0\nPrice History:\n2024-09-01 00:00: 0.4000\n2024-10-01 00:00: 0.3500\n2024-11-01 00:00: 0.3000\nTrade Summary: Labor market data",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY026\nQuestion: Will the Philadelphia Eagles win Super Bowl LVIII?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1800000.0\nPrice History:\n2024-01-01 00:00: 0.2500\n2024-01-15 00:00: 0.2000\n2024-02-01 00:00: 0.1500\nTrade Summary: Playoff elimination",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY027\nQuestion: Will Amazon stock price exceed $180 in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2900000.0\nPrice History:\n2024-10-01 00:00: 0.6000\n2024-10-15 00:00: 0.6500\n2024-11-01 00:00: 0.7000\nTrade Summary: E-commerce performance",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY028\nQuestion: Will the US Congress pass a new infrastructure bill in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1900000.0\nPrice History:\n2024-09-01 00:00: 0.5000\n2024-10-01 00:00: 0.4500\n2024-11-01 00:00: 0.4000\nTrade Summary: Legislative progress",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY029\nQuestion: Will Microsoft stock price exceed $450 in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 3100000.0\nPrice History:\n2024-10-01 00:00: 0.7000\n2024-10-15 00:00: 0.7500\n2024-11-01 00:00: 0.8000\nTrade Summary: Cloud services growth",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY030\nQuestion: Will the US inflation rate fall below 3% in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2700000.0\nPrice History:\n2024-09-01 00:00: 0.6000\n2024-10-01 00:00: 0.6500\n2024-11-01 00:00: 0.7000\nTrade Summary: Economic indicators",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY031\nQuestion: Will the Golden State Warriors win the 2024 NBA Championship?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1600000.0\nPrice History:\n2024-04-01 00:00: 0.1500\n2024-05-01 00:00: 0.1000\n2024-06-01 00:00: 0.0500\nTrade Summary: Playoff performance",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY032\nQuestion: Will Netflix subscriber count exceed 250 million in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1400000.0\nPrice History:\n2024-09-01 00:00: 0.7500\n2024-10-01 00:00: 0.8000\n2024-11-01 00:00: 0.8500\nTrade Summary: Subscriber growth",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY033\nQuestion: Will the US pass new gun control legislation in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1700000.0\nPrice History:\n2024-09-01 00:00: 0.2000\n2024-10-01 00:00: 0.1800\n2024-11-01 00:00: 0.1500\nTrade Summary: Political gridlock",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY034\nQuestion: Will the Euro reach parity with the US Dollar in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2500000.0\nPrice History:\n2024-09-01 00:00: 0.3000\n2024-10-01 00:00: 0.3500\n2024-11-01 00:00: 0.4000\nTrade Summary: Currency markets",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY035\nQuestion: Will SpaceX successfully launch 100+ missions in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1200000.0\nPrice History:\n2024-09-01 00:00: 0.8000\n2024-10-01 00:00: 0.8500\n2024-11-01 00:00: 0.9000\nTrade Summary: Launch cadence",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY036\nQuestion: Will the New York Yankees win the 2024 World Series?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1500000.0\nPrice History:\n2024-09-01 00:00: 0.2000\n2024-10-01 00:00: 0.1500\n2024-11-01 00:00: 0.1000\nTrade Summary: Playoff performance",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY037\nQuestion: Will the US housing market prices increase in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2200000.0\nPrice History:\n2024-09-01 00:00: 0.5500\n2024-10-01 00:00: 0.6000\n2024-11-01 00:00: 0.6500\nTrade Summary: Real estate trends",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY038\nQuestion: Will Disney stock price exceed $120 in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1800000.0\nPrice History:\n2024-10-01 00:00: 0.4000\n2024-10-15 00:00: 0.4500\n2024-11-01 00:00: 0.5000\nTrade Summary: Entertainment sector",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY039\nQuestion: Will the US legalize marijuana at the federal level in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1300000.0\nPrice History:\n2024-09-01 00:00: 0.3000\n2024-10-01 00:00: 0.2500\n2024-11-01 00:00: 0.2000\nTrade Summary: Legislative progress",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY040\nQuestion: Will the Chicago Bulls make the 2024 NBA playoffs?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1100000.0\nPrice History:\n2024-10-01 00:00: 0.4000\n2024-10-15 00:00: 0.3500\n2024-11-01 00:00: 0.3000\nTrade Summary: Season performance",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY041\nQuestion: Will the US national debt exceed $35 trillion in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2000000.0\nPrice History:\n2024-09-01 00:00: 0.9000\n2024-10-01 00:00: 0.9200\n2024-11-01 00:00: 0.9500\nTrade Summary: Fiscal data",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY042\nQuestion: Will Samsung release a new Galaxy S series phone in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1000000.0\nPrice History:\n2024-09-01 00:00: 0.9500\n2024-10-01 00:00: 0.9800\n2024-11-01 00:00: 0.9900\nTrade Summary: Product cycle",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY043\nQuestion: Will the US achieve net-zero carbon emissions by 2050?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1600000.0\nPrice History:\n2024-09-01 00:00: 0.5000\n2024-10-01 00:00: 0.4800\n2024-11-01 00:00: 0.4500\nTrade Summary: Climate policy",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY044\nQuestion: Will the Boston Celtics win the 2024 NBA Championship?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1700000.0\nPrice History:\n2024-04-01 00:00: 0.2500\n2024-05-01 00:00: 0.3000\n2024-06-01 00:00: 0.3500\nTrade Summary: Playoff run",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY045\nQuestion: Will the US Supreme Court overturn Roe v. Wade in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2100000.0\nPrice History:\n2024-09-01 00:00: 0.0500\n2024-10-01 00:00: 0.0300\n2024-11-01 00:00: 0.0100\nTrade Summary: Already decided",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY046\nQuestion: Will the US stock market have a positive return in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 5000000.0\nPrice History:\n2024-09-01 00:00: 0.6500\n2024-10-01 00:00: 0.7000\n2024-11-01 00:00: 0.7500\nTrade Summary: Market trends",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY047\nQuestion: Will the US pass comprehensive immigration reform in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1900000.0\nPrice History:\n2024-09-01 00:00: 0.2000\n2024-10-01 00:00: 0.1800\n2024-11-01 00:00: 0.1500\nTrade Summary: Political feasibility",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY048\nQuestion: Will the US achieve 50% renewable energy by 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1400000.0\nPrice History:\n2024-09-01 00:00: 0.4000\n2024-10-01 00:00: 0.3500\n2024-11-01 00:00: 0.3000\nTrade Summary: Energy transition",
+        "output": "No"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY049\nQuestion: Will the US women's soccer team win the 2024 Olympics gold medal?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1200000.0\nPrice History:\n2024-07-01 00:00: 0.6000\n2024-07-15 00:00: 0.5500\n2024-08-01 00:00: 0.5000\nTrade Summary: Tournament performance",
+        "output": "Yes"
+    },
+    {
+        "instruction": "Predict the market outcome given the historical data.",
+        "input": "Market ID: DUMMY050\nQuestion: Will the US pass a new infrastructure spending bill in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2000000.0\nPrice History:\n2024-09-01 00:00: 0.4000\n2024-10-01 00:00: 0.3500\n2024-11-01 00:00: 0.3000\nTrade Summary: Legislative progress",
+        "output": "No"
+    },
+]
+
+
+def generate_dummy_dataset(output_path: str = "data/dummy_rag_dataset.jsonl", num_examples: int = 50):
+    """
+    Generate a dummy dataset with examples that have web-searchable content.
+    
+    Args:
+        output_path: Path to save the JSONL file
+        num_examples: Number of examples to generate (default: 50, max: 50)
+    """
+    if num_examples > len(DUMMY_EXAMPLES):
+        print(f"Warning: Only {len(DUMMY_EXAMPLES)} examples available. Using all {len(DUMMY_EXAMPLES)}.")
+        num_examples = len(DUMMY_EXAMPLES)
+    
+    # Select examples
+    selected = DUMMY_EXAMPLES[:num_examples]
+    
+    # Save to JSONL
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w') as f:
+        for example in selected:
+            f.write(json.dumps(example) + '\n')
+    
+    print(f"Generated {len(selected)} dummy examples with web-searchable content")
+    print(f"Saved to: {output_file}")
+    print(f"\nExamples cover topics like:")
+    print("  - Current events (elections, politics)")
+    print("  - Financial markets (stocks, crypto, economy)")
+    print("  - Sports (NFL, NBA, soccer)")
+    print("  - Technology (AI, tech companies)")
+    print("  - Entertainment (movies, music)")
+    print("  - Science & environment")
+    print("\nThese topics are likely to have recent web coverage for RAG evaluation.")
+
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Generate dummy dataset for RAG evaluation")
+    parser.add_argument("--output_path", type=str, default="data/dummy_rag_dataset.jsonl",
+                       help="Path to save the JSONL file")
+    parser.add_argument("--num_examples", type=int, default=50,
+                       help="Number of examples to generate (max 50)")
+    
+    args = parser.parse_args()
+    generate_dummy_dataset(args.output_path, args.num_examples)
+

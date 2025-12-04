@@ -564,7 +564,8 @@ def main():
     parser.add_argument("--adapter_path_mistral", type=str, default="models/checkpoints/Polymarket-7B-LoRA")
     parser.add_argument("--base_model_gemma", type=str, default="google/gemma-7b-it")
     parser.add_argument("--adapter_path_gemma", type=str, default="models/checkpoints/Polymarket-Gemma-7B-LoRA")
-    parser.add_argument("--dataset_path", type=str, default="data/fine_tune.jsonl")
+    parser.add_argument("--dataset_path", type=str, default="data/fine_tune.jsonl",
+                       help="Path to dataset JSONL file (can use data/dummy_rag_dataset.jsonl for web-searchable examples)")
     parser.add_argument("--num_examples", type=int, default=200)
     parser.add_argument("--test_split", type=float, default=0.1)
     parser.add_argument("--search_provider", type=str, default="duckduckgo", choices=["duckduckgo", "serpapi"])

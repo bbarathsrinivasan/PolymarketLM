@@ -2,127 +2,154 @@
   "model": "google/gemma-7b-it",
   "adapter_path": "models/checkpoints/Polymarket-Gemma-7B-LoRA",
   "method": "rag",
-  "num_examples": 5,
+  "num_examples": 50,
   "seed": 42,
   "metrics": {
     "overall": {
       "total": 5,
-      "correct": 2,
-      "accuracy": 0.4,
-      "loss": 0.36779203414916994,
-      "perplexity": 1.4445415924123242
+      "correct": 5,
+      "accuracy": 1.0,
+      "loss": 1.3174987077713012,
+      "perplexity": 3.7340696869919805
     },
     "by_task": {
       "outcome_prediction": {
         "total": 5,
-        "correct": 2,
-        "accuracy": 0.4,
-        "loss": 0.36779203414916994,
-        "perplexity": 1.4445415924123242
+        "correct": 5,
+        "accuracy": 1.0,
+        "loss": 1.3174987077713012,
+        "perplexity": 3.7340696869919805
       }
     }
   },
   "results": [
     {
       "instruction": "Predict the market outcome given the historical data.",
-      "input": "Market ID: 700255\nQuestion: Will Oliver Bearman achieve the fastest lap in Practice 1 at the 2025 F1 Qatar Grand Prix?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 14.0\nPrice History:\n2025-11-28 03:00: 0.2650\n2025-11-28 03:00: 0.7350\n2025-11-28 04:00: 0.1300\n2025-11-28 04:00: 0.8700\n2025-11-28 05:00: 0.1700\n2025-11-28 05:00: 0.8300\n2025-11-28 06:00: 0.1100\n2025-11-28 06:00: 0.8900\n2025-11-28 07:00: 0.0950\n2025-11-28 07:00: 0.9050\n2025-11-28 08:00: 0.1850\n2025-11-28 08:00: 0.8150\n2025-11-28 09:00: 0.4950\n2025-11-28 09:00: 0.5050\n2025-11-28 10:00: 0.0250\nTrade Summary: Total trades: 1, Buy volume: 14.00, Sell volume: 0.00, Average price: 0.9990, Price range: 0.9990 - 0.9990",
+      "input": "Market ID: DUMMY006\nQuestion: Will the Kansas City Chiefs win Super Bowl LVIII?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2200000.0\nPrice History:\n2024-01-01 00:00: 0.3000\n2024-01-15 00:00: 0.3500\n2024-02-01 00:00: 0.4000\nTrade Summary: Playoff performance",
       "expected": "Yes",
       "prediction": "Yes",
-      "response": "## Prediction: Yes\n\nmodel\n## Analysis\n**Credibility:**\nThe sources are not directly related to the market question, but they are all related to fashion and style, which is relevant to the market question. The sources are also generally credible, as they are all well-written and provide information about the latest fashion trends.\n\n**Recency:**\nThe information is relatively recent, as it was all published in the last few days. This means that the information is likely to be accurate and up-to-date.\n\n**Relevance:**\nThe information is directly relevant to the market question, as it provides",
-      "response_with_sources": "## Prediction: Yes\n\nmodel\n## Analysis\n**Credibility:**\nThe sources are not directly related to the market question, but they are all related to fashion and style, which is relevant to the market question. The sources are also generally credible, as they are all well-written and provide information about the latest fashion trends.\n\n**Recency:**\nThe information is relatively recent, as it was all published in the last few days. This means that the information is likely to be accurate and up-to-date.\n\n**Relevance:**\nThe information is directly relevant to the market question, as it provides\n\nSources:\n[1] SALE! Damenmode jetzt g\u00fcnstig shoppen - s.Oliver - DuckDuckGo (https://www.soliver.de/c/damen/sale/)\n[2] Schicke Kleider in gro\u00dfer Auswahl online kaufen - s.Oliver - DuckDuckGo (https://www.soliver.de/c/damen/bekleidung/kleider/)\n[3] Damenmode und Accessoires online kaufen - s.Oliver - DuckDuckGo (https://www.soliver.de/c/damen/)\n[4] s.Oliver \u2665 Kleidung, Mode, Schuhe & Accessoires online kaufen - DuckDuckGo (https://www.soliver.de/)\n[5] Herrenmode online kaufen - Alles f\u00fcr M\u00e4nner! - s.Oliver - DuckDuckGo (https://www.soliver.de/c/herren/)\n",
+      "response": "## Prediction: Yes\n\nmodel\n## Analysis\n**Credibility:**\n- Both sources are credible, with one being a major news network and the other a popular sports magazine.\n- Both sources provide similar information about the game, including the score, the winner, and the key points of the game.\n- Both sources also mention the Chiefs' dominance in recent years.\n\n**Recency:**\n- The information is relatively recent, with the game having been played on February 11th, 2024.\n- The information is also relevant to the market question, as it is about the",
+      "response_with_sources": "## Prediction: Yes\n\nmodel\n## Analysis\n**Credibility:**\n- Both sources are credible, with one being a major news network and the other a popular sports magazine.\n- Both sources provide similar information about the game, including the score, the winner, and the key points of the game.\n- Both sources also mention the Chiefs' dominance in recent years.\n\n**Recency:**\n- The information is relatively recent, with the game having been played on February 11th, 2024.\n- The information is also relevant to the market question, as it is about the\n\nSources:\n[1] Kansas City Chiefs Win Super Bowl LVIII in Overtime Thriller - ESPN (https://www.espn.com/nfl/super-bowl-lviii)\n[2] Chiefs Dynasty: Mahomes Leads Team to Third Super Bowl Victory - Sports Illustrated (https://www.si.com/nfl/chiefs-dynasty)\n",
       "search_results": [
         {
-          "title": "SALE! Damenmode jetzt g\u00fcnstig shoppen - s.Oliver",
-          "snippet": "Sweatshirt im Relaxed Fit mit Seitenschlitz s.Oliver 31,19 \u20ac 38,99 \u20ac 59,99 \u20ac -30% Mantel mit Steppmuster und Kapuze s.Oliver 97,99 \u20ac \u2026",
-          "link": "https://www.soliver.de/c/damen/sale/",
-          "source": "DuckDuckGo",
-          "published": "2025-12-04T05:16:41.986501",
-          "relevance_score": 0.1111111111111111
+          "title": "Kansas City Chiefs Win Super Bowl LVIII in Overtime Thriller",
+          "snippet": "The Kansas City Chiefs defeated the San Francisco 49ers 25-22 in Super Bowl LVIII, winning their third championship in five years. Patrick Mahomes threw for 333 yards and two touchdowns, including the...",
+          "link": "https://www.espn.com/nfl/super-bowl-lviii",
+          "source": "ESPN",
+          "published": "2024-02-11",
+          "relevance": "high",
+          "domain": "sports"
         },
         {
-          "title": "Schicke Kleider in gro\u00dfer Auswahl online kaufen - s.Oliver",
-          "snippet": "Glamour\u00f6ses Cocktailkleid, schlichtes Etuikleid oder luftiges Modell f\u00fcr den Sommer. Entdecke bei s.Oliver schicke Kleider f\u00fcr Damen.",
-          "link": "https://www.soliver.de/c/damen/bekleidung/kleider/",
-          "source": "DuckDuckGo",
-          "published": "2025-12-04T05:16:41.986506",
-          "relevance_score": 0.1111111111111111
-        },
-        {
-          "title": "Damenmode und Accessoires online kaufen - s.Oliver",
-          "snippet": "Bei s.Oliver findest du Outfits, die sich ideal miteinander kombinieren lassen. Damenmode online kaufen: Entdecke Deine Lieblingsst\u00fccke \u2026",
-          "link": "https://www.soliver.de/c/damen/",
-          "source": "DuckDuckGo",
-          "published": "2025-12-04T05:16:41.986507",
-          "relevance_score": 0.1111111111111111
-        },
-        {
-          "title": "s.Oliver \u2665 Kleidung, Mode, Schuhe & Accessoires online kaufen",
-          "snippet": "Angesagte Trends, zeitlose Pieces und schicke Accessoires: Sei immer auf dem neuesten Stand und entdecke Must-haves f\u00fcr Damen, Herren \u2026",
-          "link": "https://www.soliver.de/",
-          "source": "DuckDuckGo",
-          "published": "2025-12-04T05:16:41.986505",
-          "relevance_score": 0.06666666666666667
-        },
-        {
-          "title": "Herrenmode online kaufen - Alles f\u00fcr M\u00e4nner! - s.Oliver",
-          "snippet": "Klassisch bis trendy: M\u00e4nnermode f\u00fcr Job, Freizeit und besondere Anl\u00e4sse online entdecken. Bestelle aktuelle Mode f\u00fcr M\u00e4nner \u2026",
-          "link": "https://www.soliver.de/c/herren/",
-          "source": "DuckDuckGo",
-          "published": "2025-12-04T05:16:41.986506",
-          "relevance_score": 0.06666666666666667
+          "title": "Chiefs Dynasty: Mahomes Leads Team to Third Super Bowl Victory",
+          "snippet": "The Kansas City Chiefs' victory in Super Bowl LVIII marks their third championship since 2020, establishing them as one of the NFL's premier franchises. Quarterback Patrick Mahomes was named Super Bow...",
+          "link": "https://www.si.com/nfl/chiefs-dynasty",
+          "source": "Sports Illustrated",
+          "published": "2024-02-12",
+          "relevance": "high",
+          "domain": "sports"
         }
       ],
       "correct": true,
       "task": "outcome_prediction",
-      "loss": 0.5270754098892212
+      "loss": 1.3005326986312866
     },
     {
       "instruction": "Predict the market outcome given the historical data.",
-      "input": "Market ID: 582679\nQuestion: Monad market cap (FDV) >$8B one day after launch?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1034004.454179\nPrice History:\n2025-10-28 22:00: 0.1200\n2025-10-29 01:00: 0.1150\n2025-10-29 04:00: 0.1250\n2025-10-29 11:00: 0.1000\n2025-10-29 14:00: 0.1000\n2025-10-29 17:00: 0.1000\n2025-10-29 20:00: 0.1050\n2025-10-29 23:00: 0.1100\n2025-10-30 02:00: 0.1100\n2025-10-30 05:00: 0.1150\n2025-10-30 08:00: 0.1150\n2025-10-30 11:00: 0.1100\n2025-10-30 14:00: 0.0600\n2025-10-30 17:00: 0.0700\n2025-10-30 20:00: 0.0800\n2025-10-30 23:00: 0.0850\n2025-10-31 02:00: 0.0800\n2025-10-31 05:00: 0.0750\n2025-10-31 08:00: 0.0285\n2025-10-31 11:00: 0.0330\n2025-10-31 14:00: 0.0460\n2025-10-31 17:00: 0.0730\n2025-10-31 20:00: 0.0655\n2025-10-31 23:00: 0.0655\n2025-11-01 02:00: 0.0650\n2025-11-01 05:00: 0.0645\n2025-11-01 08:00: 0.0555\n2025-11-01 11:00: 0.0480\n2025-11-01 14:00: 0.0480\n2025-11-01 17:00: 0.0535\n2025-11-01 20:00: 0.0535\n2025-11-01 23:00: 0.0750\n2025-11-02 01:00: 0.0720\n2025-11-02 04:00: 0.0525\n2025-11-02 07:00: 0.0525\n2025-11-02 10:00: 0.0515\n2025-11-02 13:00: 0.0420\n2025-11-02 16:00: 0.0415\n2025-11-02 19:00: 0.0415\n2025-11-02 22:00: 0.0425\n2025-11-03 01:00: 0.0425\n2025-11-03 04:00: 0.0325\n2025-11-03 07:00: 0.0330\n2025-11-03 10:00: 0.0435\n2025-11-03 13:00: 0.0280\n2025-11-03 16:00: 0.0480\n2025-11-03 19:00: 0.0515\n2025-11-03 22:00: 0.0435\n2025-11-04 01:00: 0.0470\n2025-11-04 04:00: 0.0440\nTrade Summary: Total trades: 1000000, Buy volume: 114946648.34, Sell volume: 5236859.85, Average price: 0.8723, Price range: 0.0010 - 0.9990",
-      "expected": "No",
-      "prediction": "Yes",
-      "response": "Yes\n\nmodel\nYes\n\nmodel\nYes\n//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_",
-      "response_with_sources": "Yes\n\nmodel\nYes\n\nmodel\nYes\n//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_",
-      "search_results": [],
-      "correct": false,
-      "task": "outcome_prediction",
-      "loss": 0.39905253052711487
-    },
-    {
-      "instruction": "Predict the market outcome given the historical data.",
-      "input": "Market ID: 565756\nQuestion: Will Nadeshot win the 2025 Internet Invitational?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2735.275\nPrice History:\n2025-10-10 02:00: 0.7165\n2025-10-10 06:00: 0.2835\n2025-10-10 10:00: 0.7165\n2025-10-10 14:00: 0.7165\n2025-10-10 18:00: 0.7165\n2025-10-10 22:00: 0.7165\n2025-10-11 02:00: 0.7165\n2025-10-11 06:00: 0.2835\n2025-10-11 10:00: 0.7165\n2025-10-11 14:00: 0.2835\n2025-10-11 18:00: 0.2835\n2025-10-11 22:00: 0.7165\n2025-10-12 02:00: 0.2835\n2025-10-12 06:00: 0.2835\n2025-10-12 10:00: 0.2835\n2025-10-12 14:00: 0.2835\n2025-10-12 18:00: 0.2835\n2025-10-12 22:00: 0.2835\n2025-10-13 02:00: 0.2835\n2025-10-13 06:00: 0.2835\n2025-10-13 10:00: 0.7165\n2025-10-13 14:00: 0.2765\n2025-10-13 18:00: 0.7235\n2025-10-13 22:00: 0.7235\n2025-10-14 02:00: 0.2765\n2025-10-14 06:00: 0.7235\n2025-10-14 10:00: 0.7235\n2025-10-14 14:00: 0.2765\n2025-10-14 18:00: 0.2765\n2025-10-14 22:00: 0.2765\n2025-10-15 02:00: 0.2765\n2025-10-15 06:00: 0.7235\n2025-10-15 10:00: 0.7235\n2025-10-15 14:00: 0.7235\n2025-10-15 18:00: 0.7235\n2025-10-15 22:00: 0.7235\n2025-10-16 02:00: 0.2765\n2025-10-16 06:00: 0.7235\n2025-10-16 10:00: 0.7235\n2025-10-16 14:00: 0.7250\n2025-10-16 18:00: 0.2750\n2025-10-16 22:00: 0.2750\n2025-10-17 02:00: 0.2750\n2025-10-17 06:00: 0.7250\n2025-10-17 10:00: 0.7250\n2025-10-17 14:00: 0.7250\n2025-10-17 18:00: 0.7250\n2025-10-17 22:00: 0.7250\n2025-10-18 02:00: 0.2750\n2025-10-18 06:00: 0.2750\nTrade Summary: Total trades: 94, Buy volume: 2142.24, Sell volume: 593.04, Average price: 0.7758, Price range: 0.0010 - 0.9990",
-      "expected": "No",
-      "prediction": "Yes",
-      "response": "Yes\n\nmodel\nYes\n\nmodel\nYes\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_",
-      "response_with_sources": "Yes\n\nmodel\nYes\n\nmodel\nYes\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_",
-      "search_results": [],
-      "correct": false,
-      "task": "outcome_prediction",
-      "loss": 0.25983166694641113
-    },
-    {
-      "instruction": "Predict the market outcome given the historical data.",
-      "input": "Market ID: 641805\nQuestion: Will Donalt win the Synthetix trading competition?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 59718.407041\nPrice History:\n2025-10-23 04:00: 0.9500\n2025-10-23 05:00: 0.9500\n2025-10-23 06:00: 0.9500\n2025-10-23 07:00: 0.9500\n2025-10-23 08:00: 0.9500\n2025-10-23 09:00: 0.9650\n2025-10-23 10:00: 0.9655\n2025-10-23 11:00: 0.9655\n2025-10-23 12:00: 0.9655\n2025-10-23 13:00: 0.9660\n2025-10-23 14:00: 0.9685\n2025-10-23 15:00: 0.9800\n2025-10-23 16:00: 0.9815\n2025-10-23 17:00: 0.9790\n2025-10-23 18:00: 0.9785\n2025-10-23 19:00: 0.9780\n2025-10-23 20:00: 0.9785\n2025-10-23 21:00: 0.9790\n2025-10-23 22:00: 0.9840\n2025-10-23 23:00: 0.9850\n2025-10-24 00:00: 0.9870\n2025-10-24 01:00: 0.9880\n2025-10-24 02:00: 0.9860\n2025-10-24 03:00: 0.9860\n2025-10-24 04:00: 0.9860\n2025-10-24 05:00: 0.9860\n2025-10-24 06:00: 0.9870\n2025-10-24 07:00: 0.9785\n2025-10-24 08:00: 0.9800\n2025-10-24 09:00: 0.9815\n2025-10-24 10:00: 0.9775\n2025-10-24 11:00: 0.9775\n2025-10-24 12:00: 0.9775\n2025-10-24 13:00: 0.9775\n2025-10-24 14:00: 0.9710\n2025-10-24 15:00: 0.9690\n2025-10-24 16:00: 0.9695\n2025-10-24 17:00: 0.9690\n2025-10-24 18:00: 0.9680\n2025-10-24 19:00: 0.8850\n2025-10-24 20:00: 0.8850\n2025-10-24 21:00: 0.8845\n2025-10-24 22:00: 0.8820\n2025-10-24 23:00: 0.8810\n2025-10-25 00:00: 0.8670\n2025-10-25 01:00: 0.8650\n2025-10-25 02:00: 0.8625\n2025-10-25 03:00: 0.8625\n2025-10-25 04:00: 0.8640\n2025-10-25 05:00: 0.8645\nTrade Summary: Total trades: 77, Buy volume: 3099.89, Sell volume: 879.08, Average price: 0.7361, Price range: 0.0101 - 0.9900",
-      "expected": "No",
-      "prediction": "Yes",
-      "response": "Yes\n\nmodel\nYes\n\nmodel\nYes\n\nmodel\nYes\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_",
-      "response_with_sources": "Yes\n\nmodel\nYes\n\nmodel\nYes\n\nmodel\nYes\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_",
-      "search_results": [],
-      "correct": false,
-      "task": "outcome_prediction",
-      "loss": 0.3225053548812866
-    },
-    {
-      "instruction": "Predict the market outcome given the historical data.",
-      "input": "Market ID: 570935\nQuestion: Paetongtarn Shinawatra out as PM of Thailand by December 31?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 47932.477333\nPrice History:\n2025-08-25 03:00: 0.8400\n2025-08-25 04:00: 0.8400\n2025-08-25 05:00: 0.8400\n2025-08-25 06:00: 0.8350\n2025-08-25 07:00: 0.8450\n2025-08-25 08:00: 0.8350\n2025-08-25 09:00: 0.8350\n2025-08-25 10:00: 0.8450\n2025-08-25 11:00: 0.8350\n2025-08-25 12:00: 0.6050\n2025-08-25 13:00: 0.2800\n2025-08-25 14:00: 0.6450\n2025-08-25 15:00: 0.6450\n2025-08-25 16:00: 0.6450\n2025-08-25 17:00: 0.3100\n2025-08-25 18:00: 0.3050\n2025-08-25 19:00: 0.7050\n2025-08-25 20:00: 0.7050\n2025-08-25 21:00: 0.6750\n2025-08-25 22:00: 0.3000\n2025-08-25 23:00: 0.2750\n2025-08-25 23:00: 0.7250\n2025-08-26 00:00: 0.6800\n2025-08-26 01:00: 0.3050\n2025-08-26 02:00: 0.3100\n2025-08-26 03:00: 0.3350\n2025-08-26 04:00: 0.3350\n2025-08-26 05:00: 0.3400\n2025-08-26 06:00: 0.6650\n2025-08-26 07:00: 0.3150\n2025-08-26 08:00: 0.3050\n2025-08-26 09:00: 0.3050\n2025-08-26 10:00: 0.3050\n2025-08-26 11:00: 0.6800\n2025-08-26 12:00: 0.3200\n2025-08-26 13:00: 0.3250\n2025-08-26 14:00: 0.6650\n2025-08-26 15:00: 0.3550\n2025-08-26 16:00: 0.3550\n2025-08-26 17:00: 0.3550\n2025-08-26 18:00: 0.3550\n2025-08-26 19:00: 0.3650\n2025-08-26 20:00: 0.6550\n2025-08-26 21:00: 0.6850\n2025-08-26 22:00: 0.6950\n2025-08-26 23:00: 0.6900\n2025-08-27 00:00: 0.3150\n2025-08-27 01:00: 0.7050\n2025-08-27 02:00: 0.6950\n2025-08-27 03:00: 0.6950\nTrade Summary: Total trades: 59, Buy volume: 2178.63, Sell volume: 2492.81, Average price: 0.4002, Price range: 0.1500 - 0.8500",
+      "input": "Market ID: DUMMY026\nQuestion: Will the Philadelphia Eagles win Super Bowl LVIII?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1800000.0\nPrice History:\n2024-01-01 00:00: 0.2500\n2024-01-15 00:00: 0.2000\n2024-02-01 00:00: 0.1500\nTrade Summary: Playoff elimination",
       "expected": "No",
       "prediction": "No",
-      "response": "No\n\nmodel\nNo\n\nmodel\nNo\n\nmodel\nNo\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_",
-      "response_with_sources": "No\n\nmodel\nNo\n\nmodel\nNo\n\nmodel\nNo\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_",
-      "search_results": [],
+      "response": "## Prediction: No\n\nmodel\n## Explanation\n**Credibility:**\n- The source is the official NFL website, which is a highly credible source of information.\n- The article is recent, dated 2024-02-11, which means the information is up-to-date.\n- The information is directly related to the market question, as it describes the outcome of Super Bowl LVIII, which is the market question.\n\n**Recency:**\n- The information is recent, dated 2024-02-11, which means it is very relevant to",
+      "response_with_sources": "## Prediction: No\n\nmodel\n## Explanation\n**Credibility:**\n- The source is the official NFL website, which is a highly credible source of information.\n- The article is recent, dated 2024-02-11, which means the information is up-to-date.\n- The information is directly related to the market question, as it describes the outcome of Super Bowl LVIII, which is the market question.\n\n**Recency:**\n- The information is recent, dated 2024-02-11, which means it is very relevant to\n\nSources:\n[1] Super Bowl LVIII: Chiefs Defeat 49ers in Overtime - NFL.com (https://www.nfl.com/super-bowl-lviii)\n",
+      "search_results": [
+        {
+          "title": "Super Bowl LVIII: Chiefs Defeat 49ers in Overtime",
+          "snippet": "The Kansas City Chiefs won Super Bowl LVIII, defeating the San Francisco 49ers 25-22 in overtime. The Philadelphia Eagles were eliminated in the Wild Card round, losing 32-9 to the Tampa Bay Buccaneer...",
+          "link": "https://www.nfl.com/super-bowl-lviii",
+          "source": "NFL.com",
+          "published": "2024-02-11",
+          "relevance": "high",
+          "domain": "sports"
+        }
+      ],
       "correct": true,
       "task": "outcome_prediction",
-      "loss": 0.3304952085018158
+      "loss": 1.2919591665267944
+    },
+    {
+      "instruction": "Predict the market outcome given the historical data.",
+      "input": "Market ID: DUMMY021\nQuestion: Will the S&P 500 index close above 5,000 points in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 4000000.0\nPrice History:\n2024-09-01 00:00: 0.6000\n2024-10-01 00:00: 0.6500\n2024-11-01 00:00: 0.7000\nTrade Summary: Market performance",
+      "expected": "Yes",
+      "prediction": "Yes",
+      "response": "## Prediction: Yes\n\nmodel\n## Explanation\n\nmodel\n**Credibility:**\nBoth sources are credible and well-respected news sources. They provide relevant information about the S&P 500 index and its recent performance.\n\n**Recency:**\nThe information is relatively recent, with the latest article being published on November 18, 2024.\n\n**Relevance:**\nThe information is directly relevant to the market question, as it provides information about the S&P 500 index reaching a new record high of 5,000 points.\n\n**",
+      "response_with_sources": "## Prediction: Yes\n\nmodel\n## Explanation\n\nmodel\n**Credibility:**\nBoth sources are credible and well-respected news sources. They provide relevant information about the S&P 500 index and its recent performance.\n\n**Recency:**\nThe information is relatively recent, with the latest article being published on November 18, 2024.\n\n**Relevance:**\nThe information is directly relevant to the market question, as it provides information about the S&P 500 index reaching a new record high of 5,000 points.\n\n**\n\nSources:\n[1] S&P 500 Breaks 5,000: Record High Reached - CNBC (https://www.cnbc.com/sp500-5000-record)\n[2] Stock Market Rally: S&P 500 Surges Past 5,000 - Wall Street Journal (https://www.wsj.com/sp500-5000-milestone)\n",
+      "search_results": [
+        {
+          "title": "S&P 500 Breaks 5,000: Record High Reached",
+          "snippet": "The S&P 500 index closed above 5,000 for the first time in history, reaching 5,023.89 on November 20, 2024. The milestone comes amid strong corporate earnings, moderating inflation, and expectations o...",
+          "link": "https://www.cnbc.com/sp500-5000-record",
+          "source": "CNBC",
+          "published": "2024-11-20",
+          "relevance": "high",
+          "domain": "finance"
+        },
+        {
+          "title": "Stock Market Rally: S&P 500 Surges Past 5,000",
+          "snippet": "The S&P 500's surge past 5,000 reflects strong fundamentals: corporate earnings have exceeded expectations, with Q3 earnings growth of 8.5% year-over-year. The technology sector has been particularly ...",
+          "link": "https://www.wsj.com/sp500-5000-milestone",
+          "source": "Wall Street Journal",
+          "published": "2024-11-18",
+          "relevance": "high",
+          "domain": "finance"
+        }
+      ],
+      "correct": true,
+      "task": "outcome_prediction",
+      "loss": 1.245961308479309
+    },
+    {
+      "instruction": "Predict the market outcome given the historical data.",
+      "input": "Market ID: DUMMY050\nQuestion: Will the US pass a new infrastructure spending bill in 2024?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2000000.0\nPrice History:\n2024-09-01 00:00: 0.4000\n2024-10-01 00:00: 0.3500\n2024-11-01 00:00: 0.3000\nTrade Summary: Legislative progress",
+      "expected": "No",
+      "prediction": "No",
+      "response": "## Prediction: No\n\nmodel\n**Credibility of Sources:**\n- Politico is a highly credible news source with a track record of accurate and unbiased reporting on political matters.\n- The article is recent and directly related to the market question, providing up-to-date information.\n\n**Recency of Information:**\n- The information is from the same day as the market question, making it highly relevant.\n\n**Relevance to Market Question:**\n- The article explicitly states that a new infrastructure spending bill is unlikely to pass in 2024.\n- The article provides a detailed explanation of the reasons",
+      "response_with_sources": "## Prediction: No\n\nmodel\n**Credibility of Sources:**\n- Politico is a highly credible news source with a track record of accurate and unbiased reporting on political matters.\n- The article is recent and directly related to the market question, providing up-to-date information.\n\n**Recency of Information:**\n- The information is from the same day as the market question, making it highly relevant.\n\n**Relevance to Market Question:**\n- The article explicitly states that a new infrastructure spending bill is unlikely to pass in 2024.\n- The article provides a detailed explanation of the reasons\n\nSources:\n[1] Infrastructure Spending: No Major Bill in 2024 - Politico (https://www.politico.com/infrastructure-2024)\n",
+      "search_results": [
+        {
+          "title": "Infrastructure Spending: No Major Bill in 2024",
+          "snippet": "A new infrastructure spending bill is unlikely to pass in 2024. While there is bipartisan support for infrastructure investment, disagreements over funding sources, project priorities, and total spend...",
+          "link": "https://www.politico.com/infrastructure-2024",
+          "source": "Politico",
+          "published": "2024-11-10",
+          "relevance": "high",
+          "domain": "technology"
+        }
+      ],
+      "correct": true,
+      "task": "outcome_prediction",
+      "loss": 1.3321647644042969
+    },
+    {
+      "instruction": "Predict the market outcome given the historical data.",
+      "input": "Market ID: DUMMY040\nQuestion: Will the Chicago Bulls make the 2024 NBA playoffs?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1100000.0\nPrice History:\n2024-10-01 00:00: 0.4000\n2024-10-15 00:00: 0.3500\n2024-11-01 00:00: 0.3000\nTrade Summary: Season performance",
+      "expected": "No",
+      "prediction": "No",
+      "response": "## Prediction: No\n\nmodel\n## Explanation\nThe Chicago Bulls finished the 2023-24 NBA season with a 39-43 record, missing the playoffs for the second consecutive year. The team struggled with injuries, particularly to key players Zach LaVine and Lonzo Ball. Given this information, it is unlikely that the Bulls will make the playoffs.\n\n**Credibility:**\nThe information is credible as it is from a reliable source (ESPN) and is recent.\n\n**Recency:**\nThe information is recent as it is from the end of the 2023-",
+      "response_with_sources": "## Prediction: No\n\nmodel\n## Explanation\nThe Chicago Bulls finished the 2023-24 NBA season with a 39-43 record, missing the playoffs for the second consecutive year. The team struggled with injuries, particularly to key players Zach LaVine and Lonzo Ball. Given this information, it is unlikely that the Bulls will make the playoffs.\n\n**Credibility:**\nThe information is credible as it is from a reliable source (ESPN) and is recent.\n\n**Recency:**\nThe information is recent as it is from the end of the 2023-\n\nSources:\n[1] Chicago Bulls: Playoff Hopes Fade - ESPN (https://www.espn.com/nba/bulls-season-2024)\n",
+      "search_results": [
+        {
+          "title": "Chicago Bulls: Playoff Hopes Fade",
+          "snippet": "The Chicago Bulls finished the 2023-24 NBA season with a 39-43 record, missing the playoffs for the second consecutive year. The team struggled with injuries, particularly to key players Zach LaVine a...",
+          "link": "https://www.espn.com/nba/bulls-season-2024",
+          "source": "ESPN",
+          "published": "2024-04-10",
+          "relevance": "high",
+          "domain": "sports"
+        }
+      ],
+      "correct": true,
+      "task": "outcome_prediction",
+      "loss": 1.4168756008148193
     }
   ]
 }

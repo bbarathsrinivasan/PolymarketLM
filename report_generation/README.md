@@ -119,24 +119,37 @@ This will generate:
 - Method comparison (most/least robust)
 - Task-specific error breakdown
 
-### Step 6: Generate Dummy RAG Dataset (Optional)
+### Step 6: Generate Dummy RAG Dataset and Vector DB (Optional but Recommended)
 
 Create a dataset with examples that have web-searchable content:
 
 ```bash
+# Generate dummy dataset
 python report_generation/scripts/generate_dummy_rag_dataset.py \
     --output_path data/dummy_rag_dataset.jsonl \
     --num_examples 50
+
+# Generate vector database with realistic context data
+python report_generation/scripts/generate_vector_db_context.py \
+    --output_path data/dummy_rag_vector_db.jsonl
 ```
 
-This creates 50 examples covering topics like:
-- Current events (elections, politics)
-- Financial markets (stocks, crypto)
-- Sports (NFL, NBA, soccer)
-- Technology (AI, tech companies)
-- Entertainment, science, environment
+This creates:
+- **50 examples** covering topics like current events, financial markets, sports, technology, etc.
+- **Vector database** with realistic context data (news articles, reports, analysis) for each example
 
-These examples are designed to have recent web coverage, making them ideal for RAG evaluation.
+The vector DB contains:
+- Realistic news articles from sources like Reuters, Bloomberg, ESPN, etc.
+- Financial reports and market analysis
+- Sports analysis and results
+- Context that helps predict outcomes and provides explanations
+- All entries are formatted for easy retrieval and citation
+
+**Why use the vector DB?**
+- More reliable than web search (no rate limiting, always available)
+- Context is specifically designed to help with predictions
+- Realistic sources and dates for proper citations
+- Faster than web search (no API calls)
 
 ### Step 7: Run RAG Evaluation (Additional Experiment)
 
@@ -147,21 +160,33 @@ Evaluate fine-tuned models with retrieval-augmented generation (RAG):
 - Dummy dataset: `data/dummy_rag_dataset.jsonl` (designed for web-searchable content)
 
 ```bash
-# Evaluate both Mistral and Gemma with RAG
+# Option 1: Using vector database (recommended - faster, more reliable)
 python report_generation/scripts/evaluate_rag_integration.py \
-    --num_examples 200 \
+    --dataset_path data/dummy_rag_dataset.jsonl \
+    --num_examples 50 \
+    --use_vector_db \
+    --vector_db_path data/dummy_rag_vector_db.jsonl
+
+# Option 2: Using web search (requires internet, may have rate limiting)
+python report_generation/scripts/evaluate_rag_integration.py \
+    --dataset_path data/dummy_rag_dataset.jsonl \
+    --num_examples 50 \
     --search_provider duckduckgo \
     --num_search_results 5
 
-# Evaluate only Mistral
+# Evaluate only Mistral with vector DB
 python report_generation/scripts/evaluate_rag_integration.py \
     --models mistral \
-    --num_examples 200
+    --dataset_path data/dummy_rag_dataset.jsonl \
+    --num_examples 50 \
+    --use_vector_db
 
-# Evaluate only Gemma
+# Evaluate only Gemma with vector DB
 python report_generation/scripts/evaluate_rag_integration.py \
     --models gemma \
-    --num_examples 200
+    --dataset_path data/dummy_rag_dataset.jsonl \
+    --num_examples 50 \
+    --use_vector_db
 ```
 
 This will:

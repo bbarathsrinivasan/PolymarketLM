@@ -11,6 +11,7 @@ import re
 import sys
 import math
 import time
+import importlib.util
 from pathlib import Path
 from tqdm import tqdm
 from collections import defaultdict
@@ -31,6 +32,22 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 # Import integration modules
 from integration.prompt_augmenter import augment_prompt_with_search, extract_market_question
 from integration.search_retriever import SearchRetriever
+
+# Import vector DB retriever
+try:
+    # Import from same directory
+    import importlib.util
+    vector_db_path = Path(__file__).parent / "vector_db_retriever.py"
+    if vector_db_path.exists():
+        spec = importlib.util.spec_from_file_location("vector_db_retriever", vector_db_path)
+        vector_db_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(vector_db_module)
+        VectorDBRetriever = vector_db_module.VectorDBRetriever
+        VECTOR_DB_AVAILABLE = True
+    else:
+        VECTOR_DB_AVAILABLE = False
+except Exception:
+    VECTOR_DB_AVAILABLE = False
 
 
 def load_model_with_adapter(base_model_name: str, adapter_path: str, use_4bit: bool = True):
@@ -310,7 +327,8 @@ def evaluate_baseline(model, tokenizer, examples: List[Dict], model_type: str = 
 
 
 def evaluate_rag(model, tokenizer, examples: List[Dict], search_retriever: SearchRetriever, 
-                 num_search_results: int = 5, model_type: str = "mistral"):
+                 num_search_results: int = 5, model_type: str = "mistral",
+                 vector_db_retriever: Optional[VectorDBRetriever] = None, use_vector_db: bool = False):
     """Evaluate with RAG augmentation."""
     results = []
     losses = []
@@ -328,39 +346,63 @@ def evaluate_rag(model, tokenizer, examples: List[Dict], search_retriever: Searc
         if idx > 0:
             time.sleep(1)  # 1 second delay between searches
         
-        # Augment prompt with search results
+        # Augment prompt with search results or vector DB
         try:
-            augmented_input, search_results = augment_prompt_with_search(
-                instruction,
-                input_text,
-                provider=search_retriever.provider,
-                api_key=search_retriever.api_key,
-                num_results=num_search_results,
-                search_retriever=search_retriever,
-                cache_dir=str(search_retriever.cache_dir) if search_retriever.cache_dir else None
-            )
-            
-            # If no results found, try a simpler query without "news recent" suffix
-            if not search_results:
+            if use_vector_db and vector_db_retriever:
+                # Use vector DB retrieval
                 market_question = extract_market_question(input_text)
-                if market_question:
-                    try:
-                        # Try without the "news recent" enhancement
-                        simple_results = search_retriever.get_relevant_search_results(
-                            market_question,
-                            num_results=num_search_results,
-                            enhance_query=False  # Don't add "news recent"
-                        )
-                        if simple_results:
-                            search_results = simple_results
-                            # Format augmented input manually
-                            from integration.prompt_augmenter import format_search_section
-                            search_section = format_search_section(search_results)
-                            augmented_input = f"{input_text}\n\nRelevant Information from Web Search:\n{search_section}\n\nPlease analyze the above search results and explain how they inform your prediction. Consider the credibility of sources, recency of information, and how the information relates to the market question."
-                    except Exception:
-                        pass  # Keep original augmented_input if this also fails
+                # Extract market ID from input if available
+                market_id = None
+                if "Market ID:" in input_text:
+                    market_id_match = re.search(r"Market ID:\s*(\w+)", input_text)
+                    if market_id_match:
+                        market_id = market_id_match.group(1)
+                
+                if market_id:
+                    search_results = vector_db_retriever.get_by_market_id(market_id, num_search_results)
+                else:
+                    search_results = vector_db_retriever.retrieve(market_question or input_text, num_results=num_search_results)
+                
+                if search_results:
+                    # Format augmented input manually
+                    from integration.prompt_augmenter import format_search_section
+                    search_section = format_search_section(search_results)
+                    augmented_input = f"{input_text}\n\nRelevant Information from Knowledge Base:\n{search_section}\n\nPlease analyze the above information and explain how it informs your prediction. Consider the credibility of sources, recency of information, and how the information relates to the market question."
+                else:
+                    augmented_input = input_text
+            else:
+                # Use web search
+                augmented_input, search_results = augment_prompt_with_search(
+                    instruction,
+                    input_text,
+                    provider=search_retriever.provider,
+                    api_key=search_retriever.api_key,
+                    num_results=num_search_results,
+                    search_retriever=search_retriever,
+                    cache_dir=str(search_retriever.cache_dir) if search_retriever.cache_dir else None
+                )
+                
+                # If no results found, try a simpler query without "news recent" suffix
+                if not search_results:
+                    market_question = extract_market_question(input_text)
+                    if market_question:
+                        try:
+                            # Try without the "news recent" enhancement
+                            simple_results = search_retriever.get_relevant_search_results(
+                                market_question,
+                                num_results=num_search_results,
+                                enhance_query=False  # Don't add "news recent"
+                            )
+                            if simple_results:
+                                search_results = simple_results
+                                # Format augmented input manually
+                                from integration.prompt_augmenter import format_search_section
+                                search_section = format_search_section(search_results)
+                                augmented_input = f"{input_text}\n\nRelevant Information from Web Search:\n{search_section}\n\nPlease analyze the above search results and explain how they inform your prediction. Consider the credibility of sources, recency of information, and how the information relates to the market question."
+                        except Exception:
+                            pass  # Keep original augmented_input if this also fails
         except Exception as e:
-            print(f"Error retrieving search results: {e}")
+            print(f"Error retrieving results: {e}")
             search_results = []
             augmented_input = input_text
         
@@ -576,6 +618,10 @@ def main():
     parser.add_argument("--no_4bit", action="store_true")
     parser.add_argument("--models", type=str, default="both", choices=["both", "mistral", "gemma"])
     parser.add_argument("--cache_dir", type=str, default="integration/.search_cache")
+    parser.add_argument("--use_vector_db", action="store_true",
+                       help="Use vector database instead of web search (requires dummy_rag_vector_db.jsonl)")
+    parser.add_argument("--vector_db_path", type=str, default="data/dummy_rag_vector_db.jsonl",
+                       help="Path to vector database JSONL file")
     
     args = parser.parse_args()
     
@@ -589,12 +635,27 @@ def main():
     examples = load_test_examples(args.dataset_path, args.num_examples, args.test_split, args.seed)
     print(f"Loaded {len(examples)} examples\n")
     
-    # Initialize search retriever
-    search_retriever = SearchRetriever(
-        provider=args.search_provider,
-        api_key=args.serpapi_key or None,
-        cache_dir=args.cache_dir
-    )
+    # Initialize search retriever (if not using vector DB)
+    search_retriever = None
+    vector_db_retriever = None
+    
+    if args.use_vector_db:
+        if not VECTOR_DB_AVAILABLE:
+            print("Error: Vector DB retriever not available. Install required dependencies.")
+            return
+        if not Path(args.vector_db_path).exists():
+            print(f"Error: Vector DB not found: {args.vector_db_path}")
+            print("Generate it with: python report_generation/scripts/generate_vector_db_context.py")
+            return
+        vector_db_retriever = VectorDBRetriever(args.vector_db_path)
+        print("Using vector database for retrieval")
+    else:
+        search_retriever = SearchRetriever(
+            provider=args.search_provider,
+            api_key=args.serpapi_key or None,
+            cache_dir=args.cache_dir
+        )
+        print("Using web search for retrieval")
     
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -649,7 +710,8 @@ def main():
         # Evaluate RAG
         print(f"\nEvaluating RAG ({model_type})...")
         rag_results, rag_losses, rag_task_results = evaluate_rag(
-            model, tokenizer, examples, search_retriever, args.num_search_results, model_type
+            model, tokenizer, examples, search_retriever, args.num_search_results, model_type,
+            vector_db_retriever=vector_db_retriever, use_vector_db=args.use_vector_db
         )
         rag_metrics = calculate_metrics(rag_results, rag_losses, rag_task_results)
         

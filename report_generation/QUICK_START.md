@@ -58,35 +58,43 @@ python report_generation/scripts/evaluate_finetuned_gemma.py \
     --max_samples 1000
 ```
 
-### 4. Generate Dummy RAG Dataset (Optional but Recommended)
+### 4. Generate Dummy RAG Dataset and Vector DB (Recommended)
 
-Create examples with web-searchable content:
+Create examples with web-searchable content and realistic context data:
 
 ```bash
+# Generate dummy dataset
 python report_generation/scripts/generate_dummy_rag_dataset.py \
     --output_path data/dummy_rag_dataset.jsonl \
     --num_examples 50
+
+# Generate vector database with realistic context
+python report_generation/scripts/generate_vector_db_context.py \
+    --output_path data/dummy_rag_vector_db.jsonl
 ```
 
 ### 5. Run RAG Evaluation (Additional Experiment)
 
 ```bash
-# Using dummy dataset (recommended - has web-searchable content)
+# Option 1: Using vector database (recommended - faster, more reliable)
+python report_generation/scripts/evaluate_rag_integration.py \
+    --dataset_path data/dummy_rag_dataset.jsonl \
+    --num_examples 50 \
+    --use_vector_db
+
+# Option 2: Using web search (requires internet, may have rate limiting)
 python report_generation/scripts/evaluate_rag_integration.py \
     --dataset_path data/dummy_rag_dataset.jsonl \
     --num_examples 50 \
     --search_provider duckduckgo \
     --num_search_results 5
 
-# Or using real dataset
+# Evaluate individually with vector DB
 python report_generation/scripts/evaluate_rag_integration.py \
+    --models mistral \
+    --dataset_path data/dummy_rag_dataset.jsonl \
     --num_examples 50 \
-    --search_provider duckduckgo \
-    --num_search_results 5
-
-# Evaluate individually
-python report_generation/scripts/evaluate_rag_integration.py --models mistral --num_examples 50
-python report_generation/scripts/evaluate_rag_integration.py --models gemma --num_examples 50
+    --use_vector_db
 ```
 
 ### 6. Generate Tables and Analysis

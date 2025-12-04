@@ -349,12 +349,58 @@ The project includes `scripts/inference_with_news.py` for RAG experiments:
 - Compares with/without news context
 - Can be used as additional experiment section
 
-To run:
+### RAG Evaluation Script
+
+A comprehensive RAG evaluation script has been created: `report_generation/scripts/evaluate_rag_integration.py`
+
+**Features**:
+- Evaluates both Mistral and Gemma fine-tuned models
+- Compares baseline (no RAG) vs RAG performance
+- Uses search/news retrieval for augmentation
+- Generates responses with source citations and links
+- Calculates all metrics (accuracy, loss, perplexity, per-task)
+- Generates comparison tables (CSV and Markdown)
+
+**Usage**:
 ```bash
-python scripts/inference_with_news.py \
-    --adapter_path models/checkpoints/Polymarket-7B-LoRA \
-    --use_news
+# Evaluate both models with RAG (200 examples)
+python report_generation/scripts/evaluate_rag_integration.py \
+    --num_examples 200 \
+    --search_provider duckduckgo \
+    --num_search_results 5
+
+# Evaluate only Mistral
+python report_generation/scripts/evaluate_rag_integration.py \
+    --models mistral \
+    --num_examples 200
+
+# Evaluate only Gemma
+python report_generation/scripts/evaluate_rag_integration.py \
+    --models gemma \
+    --num_examples 200
 ```
+
+**Output**:
+- `rag_baseline_mistral.json` - Baseline Mistral results
+- `rag_mistral.json` - RAG Mistral results (with source citations)
+- `rag_baseline_gemma.json` - Baseline Gemma results
+- `rag_gemma.json` - RAG Gemma results (with source citations)
+- `rag_comparison_mistral.csv/md` - Mistral comparison tables
+- `rag_comparison_gemma.csv/md` - Gemma comparison tables
+
+**Key Implementation Details**:
+- Uses `integration.prompt_augmenter.augment_prompt_with_search()` for RAG
+- Extracts market questions from input text
+- Formats responses with source citations: `[1] Title - Source (link)`
+- Prioritizes outcome prediction examples (benefit most from external context)
+- Caches search results to avoid redundant API calls
+- Handles cases where no search results are found (falls back to baseline)
+
+**For Report Section 4 (Additional Experiment)**:
+- Use comparison tables from `rag_comparison_*.md` files
+- Include examples of responses with source citations
+- Compare baseline vs RAG accuracy improvements
+- Analyze which tasks benefit most from RAG
 
 ## Report Sections Checklist
 
@@ -368,7 +414,11 @@ python scripts/inference_with_news.py \
 - [ ] Fine-tuning results (tables + loss curves)
 - [ ] Error analysis (qualitative + quantitative)
 - [ ] Best system selection
-- [ ] Additional experiment (if done)
+- [ ] Additional experiment (RAG evaluation)
+  - [ ] Baseline vs RAG comparison tables
+  - [ ] Accuracy improvements per task
+  - [ ] Example responses with source citations
+  - [ ] Analysis of which tasks benefit most from RAG
 - [ ] Reproducibility details
 - [ ] Conclusion
 

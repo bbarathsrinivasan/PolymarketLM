@@ -119,13 +119,52 @@ This will generate:
 - Method comparison (most/least robust)
 - Task-specific error breakdown
 
-### Step 6: Update Report
+### Step 6: Run RAG Evaluation (Additional Experiment)
+
+Evaluate fine-tuned models with retrieval-augmented generation (RAG):
+
+```bash
+# Evaluate both Mistral and Gemma with RAG
+python report_generation/scripts/evaluate_rag_integration.py \
+    --num_examples 200 \
+    --search_provider duckduckgo \
+    --num_search_results 5
+
+# Evaluate only Mistral
+python report_generation/scripts/evaluate_rag_integration.py \
+    --models mistral \
+    --num_examples 200
+
+# Evaluate only Gemma
+python report_generation/scripts/evaluate_rag_integration.py \
+    --models gemma \
+    --num_examples 200
+```
+
+This will:
+- Evaluate baseline (no RAG) performance
+- Evaluate RAG performance with search/news augmentation
+- Generate comparison tables (CSV and Markdown)
+- Save results with source citations
+
+**Output files**:
+- `rag_baseline_mistral.json` - Baseline Mistral results
+- `rag_mistral.json` - RAG Mistral results
+- `rag_baseline_gemma.json` - Baseline Gemma results
+- `rag_gemma.json` - RAG Gemma results
+- `rag_comparison_mistral.csv/md` - Mistral comparison tables
+- `rag_comparison_gemma.csv/md` - Gemma comparison tables
+
+**Note**: RAG evaluation uses web search (DuckDuckGo by default), so it requires internet connection. Search results are cached to avoid redundant API calls.
+
+### Step 7: Update Report
 
 1. Copy results from `report_generation/outputs/comparison_tables.md` to `report.md`
-2. Fill in additional sections in `report.md` with your findings
-3. Add training/validation loss curves from wandb logs
-4. Add error analysis examples from `error_analysis_detailed.json`
-5. Update all `[TO FILL]` placeholders with actual results
+2. Fill in RAG experiment results from `rag_comparison_*.md` files
+3. Fill in additional sections in `report.md` with your findings
+4. Add training/validation loss curves from wandb logs
+5. Add error analysis examples from `error_analysis_detailed.json`
+6. Update all `[TO FILL]` placeholders with actual results
 
 ## 📊 Understanding ICL Experiments
 
@@ -150,7 +189,15 @@ report_generation/results/
 ├── icl_gemma_zero_shot.json
 ├── icl_gemma_3_shot.json
 ├── finetuned_mistral.json
-└── finetuned_gemma.json
+├── finetuned_gemma.json
+├── rag_baseline_mistral.json
+├── rag_mistral.json
+├── rag_baseline_gemma.json
+├── rag_gemma.json
+├── rag_comparison_mistral.csv
+├── rag_comparison_mistral.md
+├── rag_comparison_gemma.csv
+└── rag_comparison_gemma.md
 ```
 
 ## 🔧 Configuration

@@ -58,7 +58,21 @@ python report_generation/scripts/evaluate_finetuned_gemma.py \
     --max_samples 1000
 ```
 
-### 4. Generate Tables and Analysis
+### 4. Run RAG Evaluation (Additional Experiment)
+
+```bash
+# Evaluate both models with RAG (200 examples)
+python report_generation/scripts/evaluate_rag_integration.py \
+    --num_examples 200 \
+    --search_provider duckduckgo \
+    --num_search_results 5
+
+# Or evaluate individually
+python report_generation/scripts/evaluate_rag_integration.py --models mistral --num_examples 200
+python report_generation/scripts/evaluate_rag_integration.py --models gemma --num_examples 200
+```
+
+### 5. Generate Tables and Analysis
 
 ```bash
 # Comparison tables
@@ -68,11 +82,12 @@ python report_generation/scripts/generate_comparison_tables.py
 python report_generation/scripts/error_analysis.py
 ```
 
-### 5. Update Report
+### 6. Update Report
 
 1. Open `report_generation/report.md`
 2. Fill in all `[TO FILL]` placeholders with results from:
    - `report_generation/outputs/comparison_tables.md`
+   - `report_generation/results/rag_comparison_*.md` (RAG experiment)
    - `report_generation/outputs/error_analysis_detailed.json`
    - Training logs (wandb or output.log)
 
@@ -88,7 +103,15 @@ report_generation/
 │   ├── icl_gemma_zero_shot.json
 │   ├── icl_gemma_3_shot.json
 │   ├── finetuned_mistral.json
-│   └── finetuned_gemma.json
+│   ├── finetuned_gemma.json
+│   ├── rag_baseline_mistral.json
+│   ├── rag_mistral.json
+│   ├── rag_baseline_gemma.json
+│   ├── rag_gemma.json
+│   ├── rag_comparison_mistral.csv
+│   ├── rag_comparison_mistral.md
+│   ├── rag_comparison_gemma.csv
+│   └── rag_comparison_gemma.md
 └── outputs/
     ├── overall_comparison.csv
     ├── per_task_comparison.csv
@@ -102,9 +125,10 @@ report_generation/
 - Fine-tuning (per model): 2-4 hours on GPU
 - ICL evaluation (per method): 10-30 minutes
 - Fine-tuned evaluation (per model): 10-30 minutes
+- RAG evaluation (per model): 30-60 minutes (includes web search)
 - Table generation: < 1 minute
 
-**Total time**: ~5-10 hours (mostly fine-tuning)
+**Total time**: ~6-12 hours (mostly fine-tuning)
 
 ## Tips
 

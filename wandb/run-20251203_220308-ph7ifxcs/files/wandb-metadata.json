@@ -1,0 +1,46 @@
+{
+  "os": "Linux-6.8.0-1023-aws-x86_64-with-glibc2.35",
+  "python": "CPython 3.11.14",
+  "startedAt": "2025-12-03T22:03:08.350062Z",
+  "args": [
+    "--config",
+    "report_generation/configs/finetuning_config_mistral.yaml",
+    "--output_dir",
+    "models/checkpoints/Polymarket-7B-LoRA"
+  ],
+  "program": "/home/ubuntu/PolymarketLM/scripts/finetune_qlora.py",
+  "codePath": "scripts/finetune_qlora.py",
+  "codePathLocal": "scripts/finetune_qlora.py",
+  "git": {
+    "remote": "https://github.com/bbarathsrinivasan/PolymarketLM.git",
+    "commit": "1a47de3cdd7e61006f6b10a820c1dc1376e95613"
+  },
+  "email": "smritisi@andrew.cmu.edu",
+  "root": "/home/ubuntu/PolymarketLM",
+  "host": "ip-172-31-32-63",
+  "executable": "/opt/conda/envs/llm-project/bin/python",
+  "cpu_count": 4,
+  "cpu_count_logical": 8,
+  "gpu": "NVIDIA A10G",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "103865303040",
+      "used": "103714705408"
+    }
+  },
+  "memory": {
+    "total": "33263808512"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA A10G",
+      "memoryTotal": "24146608128",
+      "cudaCores": 10240,
+      "architecture": "Ampere",
+      "uuid": "GPU-7673b85b-0a85-13d7-63c2-5ffa5875a717"
+    }
+  ],
+  "cudaVersion": "12.4",
+  "writerId": "llvz2p45fzh1yhz7c3fyt964majzyqvm"
+}

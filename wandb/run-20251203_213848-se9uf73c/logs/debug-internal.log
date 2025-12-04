@@ -1,0 +1,12 @@
+{"time":"2025-12-03T21:38:48.478738061Z","level":"INFO","msg":"stream: starting","core version":"0.23.0"}
+{"time":"2025-12-03T21:38:48.644559805Z","level":"INFO","msg":"stream: created new stream","id":"se9uf73c"}
+{"time":"2025-12-03T21:38:48.644627076Z","level":"INFO","msg":"handler: started","stream_id":"se9uf73c"}
+{"time":"2025-12-03T21:38:48.644748408Z","level":"INFO","msg":"stream: started","id":"se9uf73c"}
+{"time":"2025-12-03T21:38:48.644772599Z","level":"INFO","msg":"writer: started","stream_id":"se9uf73c"}
+{"time":"2025-12-03T21:38:48.644784289Z","level":"INFO","msg":"sender: started","stream_id":"se9uf73c"}
+{"time":"2025-12-03T21:44:49.134944877Z","level":"INFO","msg":"api: retrying HTTP error","status":502,"url":"https://api.wandb.ai/files/smritisi-carnegie-mellon-university/huggingface/se9uf73c/file_stream","body":"\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>502 Server Error</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Server Error</h1>\n<h2>The server encountered a temporary error and could not complete your request.<p>Please try again in 30 seconds.</h2>\n<h2></h2>\n</body></html>\n"}
+{"time":"2025-12-03T21:52:34.28870419Z","level":"INFO","msg":"stream: closing","id":"se9uf73c"}
+{"time":"2025-12-03T21:52:34.592495378Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-12-03T21:52:34.718513047Z","level":"INFO","msg":"handler: closed","stream_id":"se9uf73c"}
+{"time":"2025-12-03T21:52:34.718657899Z","level":"INFO","msg":"sender: closed","stream_id":"se9uf73c"}
+{"time":"2025-12-03T21:52:34.71867144Z","level":"INFO","msg":"stream: closed","id":"se9uf73c"}

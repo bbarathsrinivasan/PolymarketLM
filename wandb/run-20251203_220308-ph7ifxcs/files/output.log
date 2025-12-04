@@ -1,0 +1,32 @@
+100%|████████████████████████████████████████████████████████████████| 80/80 [40:47<00:00, 30.60s/it]
+{'loss': 4.3797, 'grad_norm': 3.6671767234802246, 'learning_rate': 8.000000000000001e-06, 'epoch': 0.0}
+{'loss': 4.3293, 'grad_norm': 3.9989147186279297, 'learning_rate': 1.8e-05, 'epoch': 0.01}
+{'loss': 4.018, 'grad_norm': 4.206951141357422, 'learning_rate': 2.8000000000000003e-05, 'epoch': 0.01}
+{'loss': 3.5925, 'grad_norm': 4.3922858238220215, 'learning_rate': 3.8e-05, 'epoch': 0.02}
+{'loss': 3.0164, 'grad_norm': 3.3207175731658936, 'learning_rate': 4.8e-05, 'epoch': 0.02}
+{'loss': 2.518, 'grad_norm': 2.5210609436035156, 'learning_rate': 5.8e-05, 'epoch': 0.03}
+{'loss': 1.9956, 'grad_norm': 3.318263053894043, 'learning_rate': 6.800000000000001e-05, 'epoch': 0.03}
+{'loss': 1.7823, 'grad_norm': 1.1684671640396118, 'learning_rate': 7.800000000000001e-05, 'epoch': 0.04}
+{'loss': 1.683, 'grad_norm': 1.2638384103775024, 'learning_rate': 8.800000000000001e-05, 'epoch': 0.04}
+{'loss': 1.6026, 'grad_norm': 1.7939914464950562, 'learning_rate': 9.8e-05, 'epoch': 0.05}
+{'loss': 1.541, 'grad_norm': 1.9814459085464478, 'learning_rate': 0.00010800000000000001, 'epoch': 0.05}
+{'loss': 1.4654, 'grad_norm': 2.4086759090423584, 'learning_rate': 0.000118, 'epoch': 0.06}
+{'loss': 1.3962, 'grad_norm': 3.1976728439331055, 'learning_rate': 0.00012800000000000002, 'epoch': 0.06}
+{'loss': 1.3386, 'grad_norm': 4.086030006408691, 'learning_rate': 0.000138, 'epoch': 0.06}
+{'loss': 1.2182, 'grad_norm': 4.304519176483154, 'learning_rate': 0.000148, 'epoch': 0.07}
+{'loss': 1.1716, 'grad_norm': 5.7295637130737305, 'learning_rate': 0.00015800000000000002, 'epoch': 0.07}
+{'train_runtime': 2449.3435, 'train_samples_per_second': 2.09, 'train_steps_per_second': 0.033, 'train_loss': 2.3155248403549193, 'epoch': 0.07}
+2025-12-03 22:43:57,591 - INFO - Running evaluation on validation set...
+100%|████████████████████████████████████████████████████████████| 1938/1938 [10:31<00:00,  3.07it/s]
+2025-12-03 22:54:29,977 - INFO - Eval metrics: {'eval_loss': 1.1024904251098633, 'eval_runtime': 632.3827, 'eval_samples_per_second': 12.255, 'eval_steps_per_second': 3.065, 'epoch': 0.07340291317811676, 'perplexity': 3.011656998430423}
+2025-12-03 22:54:29,977 - INFO - Saving final model to models/checkpoints/Polymarket-7B-LoRA/Polymarket-7B-LoRA
+Traceback (most recent call last):
+  File "/home/ubuntu/PolymarketLM/scripts/finetune_qlora.py", line 543, in <module>
+    main()
+  File "/home/ubuntu/PolymarketLM/scripts/finetune_qlora.py", line 510, in main
+    model.save_pretrained(str(final_model_path))
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/peft/peft_model.py", line 331, in save_pretrained
+    safe_save_file(
+  File "/opt/conda/envs/llm-project/lib/python3.11/site-packages/safetensors/torch.py", line 307, in save_file
+    serialize_file(_flatten(tensors), filename, metadata=metadata)
+safetensors_rust.SafetensorError: Error while serializing: I/O error: No space left on device (os error 28)

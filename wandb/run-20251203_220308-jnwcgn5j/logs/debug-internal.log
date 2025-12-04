@@ -1,0 +1,14 @@
+{"time":"2025-12-03T22:03:08.877964324Z","level":"INFO","msg":"stream: starting","core version":"0.23.0"}
+{"time":"2025-12-03T22:03:09.153312574Z","level":"INFO","msg":"stream: created new stream","id":"jnwcgn5j"}
+{"time":"2025-12-03T22:03:09.153362955Z","level":"INFO","msg":"handler: started","stream_id":"jnwcgn5j"}
+{"time":"2025-12-03T22:03:09.153483677Z","level":"INFO","msg":"stream: started","id":"jnwcgn5j"}
+{"time":"2025-12-03T22:03:09.153503197Z","level":"INFO","msg":"writer: started","stream_id":"jnwcgn5j"}
+{"time":"2025-12-03T22:03:09.153546198Z","level":"INFO","msg":"sender: started","stream_id":"jnwcgn5j"}
+{"time":"2025-12-03T22:46:29.862587524Z","level":"INFO","msg":"stream: closing","id":"jnwcgn5j"}
+{"time":"2025-12-03T22:46:29.880905087Z","level":"ERROR","msg":"sender: failed to upload run summary: write /home/ubuntu/PolymarketLM/wandb/run-20251203_220308-jnwcgn5j/files/wandb-summary.json: no space left on device"}
+{"time":"2025-12-03T22:46:29.88292065Z","level":"ERROR","msg":"sender: failed to upload run config: write /home/ubuntu/PolymarketLM/wandb/run-20251203_220308-jnwcgn5j/files/config.yaml: no space left on device"}
+{"time":"2025-12-03T22:46:30.130931762Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-12-03T22:46:30.366557189Z","level":"INFO","msg":"handler: closed","stream_id":"jnwcgn5j"}
+{"time":"2025-12-03T22:46:30.366665561Z","level":"ERROR","msg":"writer: failed closing store: transactionlog: error closing writer: write /home/ubuntu/PolymarketLM/wandb/run-20251203_220308-jnwcgn5j/run-jnwcgn5j.wandb: no space left on device"}
+{"time":"2025-12-03T22:46:30.367138969Z","level":"INFO","msg":"sender: closed","stream_id":"jnwcgn5j"}
+{"time":"2025-12-03T22:46:30.367154079Z","level":"INFO","msg":"stream: closed","id":"jnwcgn5j"}

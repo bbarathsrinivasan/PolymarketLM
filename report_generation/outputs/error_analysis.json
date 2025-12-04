@@ -1,0 +1,194 @@
+{
+  "ICL_mistral_zero_shot": {
+    "total_errors": 186,
+    "error_examples": [
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "Based",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "Yes",
+        "predicted": "Based",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "Based",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "No",
+        "predicted": "Based",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "Based",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      }
+    ]
+  },
+  "ICL_mistral_3_shot": {
+    "total_errors": 141,
+    "error_examples": [
+      {
+        "task": "outcome_prediction",
+        "expected": "Yes",
+        "predicted": "I",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "No",
+        "predicted": "Based",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "Based",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "No",
+        "predicted": "Based",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "Based",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      }
+    ]
+  },
+  "ICL_gemma_zero_shot": {
+    "total_errors": 143,
+    "error_examples": [
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      }
+    ]
+  },
+  "ICL_gemma_3_shot": {
+    "total_errors": 116,
+    "error_examples": [
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "user_classification",
+        "expected": "Noise Trader",
+        "predicted": "Informed Trader",
+        "instruction": "Classify the trader based on their history (Noise Trader or Informed Trader)."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "Noise",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "No",
+        "predicted": "Noise",
+        "instruction": "Predict the market outcome given the historical data."
+      }
+    ]
+  },
+  "Finetuned_mistral": {
+    "total_errors": 3,
+    "error_examples": [
+      {
+        "task": "outcome_prediction",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      },
+      {
+        "task": "manipulation_detection",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Detect if the following market experienced manipulation (Yes or No)."
+      }
+    ]
+  },
+  "Finetuned_gemma": {
+    "total_errors": 4,
+    "error_examples": [
+      {
+        "task": "outcome_prediction",
+        "expected": "Yes",
+        "predicted": "No",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "No",
+        "predicted": "Yes",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "No",
+        "predicted": "Yes",
+        "instruction": "Predict the market outcome given the historical data."
+      },
+      {
+        "task": "outcome_prediction",
+        "expected": "No",
+        "predicted": "Yes",
+        "instruction": "Predict the market outcome given the historical data."
+      }
+    ]
+  }
+}

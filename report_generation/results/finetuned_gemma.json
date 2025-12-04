@@ -1,0 +1,139 @@
+{
+  "base_model": "google/gemma-7b-it",
+  "adapter_path": "models/checkpoints/Polymarket-Gemma-7B-LoRA",
+  "seed": 42,
+  "metrics": {
+    "overall": {
+      "total": 200,
+      "correct": 143,
+      "accuracy": 0.715,
+      "loss": 0.40867159582674506,
+      "perplexity": 1.504817450999026
+    },
+    "by_task": {
+      "manipulation_detection": {
+        "total": 100,
+        "correct": 90,
+        "accuracy": 0.9,
+        "loss": 0.3729138185083866,
+        "perplexity": 1.4519592024307615
+      },
+      "outcome_prediction": {
+        "total": 93,
+        "correct": 46,
+        "accuracy": 0.4946236559139785,
+        "loss": 0.38386820144550776,
+        "perplexity": 1.4679519549859048
+      },
+      "user_classification": {
+        "total": 7,
+        "correct": 7,
+        "accuracy": 1.0,
+        "loss": 1.2490277971540178,
+        "perplexity": 3.4869512850690643
+      }
+    }
+  },
+  "results": [
+    {
+      "instruction": "Detect if the following market experienced manipulation (Yes or No).",
+      "input": "Market ID: 547457\nQuestion: Will the next Prime Minister of Romania be Marcel Ciolacu?\nVolume: 67899.336798\nPrice History:\n2025-06-11 14:00: 0.0005\n2025-06-11 15:00: 0.9995\n2025-06-11 17:00: 0.0005\n20",
+      "expected": "Yes",
+      "prediction": "Yes",
+      "response": "Yes\n\nmodel\nmodel\nmodel\nYes\n\nmodel\nmodel\nmodel\nYes\n\nmodel\nmodel\nYes\n\nmodel\nmodel\nYes",
+      "correct": true,
+      "task": "manipulation_detection",
+      "loss": 0.2093566507101059
+    },
+    {
+      "instruction": "Predict the market outcome given the historical data.",
+      "input": "Market ID: 700255\nQuestion: Will Oliver Bearman achieve the fastest lap in Practice 1 at the 2025 F1 Qatar Grand Prix?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 14.0\nPrice History:\n2025-11-28 03:00: 0.2650\n2025",
+      "expected": "Yes",
+      "prediction": "No",
+      "response": "No\n\nmodel\nNo\n\nmodel\nNo\n//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_",
+      "correct": false,
+      "task": "outcome_prediction",
+      "loss": 0.5278062224388123
+    },
+    {
+      "instruction": "Detect if the following market experienced manipulation (Yes or No).",
+      "input": "Market ID: 657239\nQuestion: Will Opendoor dip to $6.50 in November?\nVolume: 13697.247\nPrice History:\n2025-11-06 06:00: 0.3650\n2025-11-06 07:00: 0.6350\n2025-11-06 07:00: 0.3650\n2025-11-06 08:00: 0.7550",
+      "expected": "Yes",
+      "prediction": "Yes",
+      "response": "Yes\nmodel\nmodel\nmodel\nmodel\nmodel\nmodel\nmodel\nYes\nmodel\nmodel\nmodel\nmodel\nmodel\nmodel\nmodel\nmodel",
+      "correct": true,
+      "task": "manipulation_detection",
+      "loss": 0.3863556385040283
+    },
+    {
+      "instruction": "Predict the market outcome given the historical data.",
+      "input": "Market ID: 582679\nQuestion: Monad market cap (FDV) >$8B one day after launch?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 1034004.454179\nPrice History:\n2025-10-28 22:00: 0.1200\n2025-10-29 01:00: 0.1150\n2025-10-29",
+      "expected": "No",
+      "prediction": "Yes",
+      "response": "Yes\n\nmodel\nYes\n\nmodel\nYes\n//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_",
+      "correct": false,
+      "task": "outcome_prediction",
+      "loss": 0.5028324723243713
+    },
+    {
+      "instruction": "Detect if the following market experienced manipulation (Yes or No).",
+      "input": "Market ID: 536567\nQuestion: Will Karoline Leavitt say \"President\" 80+ times during next White House press briefing?\nVolume: 1647.16446\nPrice History:\n2025-04-12 19:00: 0.2050\n2025-04-12 19:00: 0.7950\n",
+      "expected": "Yes",
+      "prediction": "Yes",
+      "response": "Yes\n\nmodel\nmodel\nYes\n\nmodel\nmodel\nYes\n\nmodel\nmodel\nYes\n\nmodel\nmodel\nYes\n\nmodel\nYes",
+      "correct": true,
+      "task": "manipulation_detection",
+      "loss": 0.6241628527641296
+    },
+    {
+      "instruction": "Classify the trader based on their history (Noise Trader or Informed Trader).",
+      "input": "User ID: 0x6b4464c2e995bf21ce639f5a92b9595573cf28d8\nTotal Trades: 7\nTotal Volume: 73.79\nAverage Trade Size: 10.54\nActive Markets: 1\nTrades per Day: 7.00\nProfit: -73.64\nWin Rate: 0.0%",
+      "expected": "Noise Trader",
+      "prediction": "Noise Trader",
+      "response": "Noise Trader\n\nmodel\nNoise Trader\n\nmodel\nNoise Trader\n\nmodel\nNoise Trader\n//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_//_",
+      "correct": true,
+      "task": "user_classification",
+      "loss": 1.2391985654830933
+    },
+    {
+      "instruction": "Predict the market outcome given the historical data.",
+      "input": "Market ID: 565756\nQuestion: Will Nadeshot win the 2025 Internet Invitational?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 2735.275\nPrice History:\n2025-10-10 02:00: 0.7165\n2025-10-10 06:00: 0.2835\n2025-10-10 10:00",
+      "expected": "No",
+      "prediction": "Yes",
+      "response": "Yes\n\nmodel\nYes\n\nmodel\nYes\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_",
+      "correct": false,
+      "task": "outcome_prediction",
+      "loss": 0.38333752751350403
+    },
+    {
+      "instruction": "Detect if the following market experienced manipulation (Yes or No).",
+      "input": "Market ID: 527987\nQuestion: Will $BERA be the next coin listed on Robinhood?\nVolume: 2626.452316\nPrice History:\n2025-04-09 18:00: 0.9215\n2025-04-09 22:00: 0.9195\n2025-04-10 02:00: 0.9195\n2025-04-10 06",
+      "expected": "Yes",
+      "prediction": "Yes",
+      "response": "Yes\n\nmodel\nmodel\nYes\n\nmodel\nmodel\nmodel\nmodel\nmodel\nmodel\nYes\n\nmodel\nmodel\nmodel\nmodel\nmodel",
+      "correct": true,
+      "task": "manipulation_detection",
+      "loss": 0.41198045015335083
+    },
+    {
+      "instruction": "Predict the market outcome given the historical data.",
+      "input": "Market ID: 641805\nQuestion: Will Donalt win the Synthetix trading competition?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 59718.407041\nPrice History:\n2025-10-23 04:00: 0.9500\n2025-10-23 05:00: 0.9500\n2025-10-23 ",
+      "expected": "No",
+      "prediction": "Yes",
+      "response": "Yes\n\nmodel\nYes\n\nmodel\nYes\n\nmodel\nYes\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_",
+      "correct": false,
+      "task": "outcome_prediction",
+      "loss": 0.38606002926826477
+    },
+    {
+      "instruction": "Predict the market outcome given the historical data.",
+      "input": "Market ID: 570935\nQuestion: Paetongtarn Shinawatra out as PM of Thailand by December 31?\nOutcomes: [\"Yes\", \"No\"]\nVolume: 47932.477333\nPrice History:\n2025-08-25 03:00: 0.8400\n2025-08-25 04:00: 0.8400\n2",
+      "expected": "No",
+      "prediction": "No",
+      "response": "No\n\nmodel\nNo\n\nmodel\nNo\n\nmodel\nNo\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_\n//_//_",
+      "correct": true,
+      "task": "outcome_prediction",
+      "loss": 0.43564552068710327
+    }
+  ]
+}

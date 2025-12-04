@@ -1,0 +1,7 @@
+Method,Accuracy,Correct/Total,Perplexity
+ICL_mistral_zero_shot,7.00%,14/200,N/A
+ICL_mistral_3_shot,29.50%,59/200,N/A
+ICL_gemma_zero_shot,28.50%,57/200,N/A
+ICL_gemma_3_shot,42.00%,84/200,N/A
+Finetuned_mistral,55.00%,110/200,1.47
+Finetuned_gemma,71.50%,143/200,1.50

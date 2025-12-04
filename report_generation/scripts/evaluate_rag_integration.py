@@ -435,10 +435,28 @@ def calculate_metrics(results, losses, task_results):
     return metrics
 
 
+def serialize_for_json(obj):
+    """Recursively convert datetime objects to ISO format strings for JSON serialization."""
+    from datetime import datetime
+    
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    elif isinstance(obj, dict):
+        return {key: serialize_for_json(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_for_json(item) for item in obj]
+    else:
+        return obj
+
+
 def save_results(results, metrics, output_dir: Path, model_name: str, method: str, 
                  base_model: str, adapter_path: str, seed: int, num_examples: int):
     """Save evaluation results to JSON file."""
     output_file = output_dir / f"rag_{method}_{model_name.lower().replace('-', '_')}.json"
+    
+    # Serialize datetime objects before saving
+    serializable_results = serialize_for_json(results[:20])  # Save first 20 examples for analysis
+    serializable_metrics = serialize_for_json(metrics)
     
     with open(output_file, 'w') as f:
         json.dump({
@@ -447,8 +465,8 @@ def save_results(results, metrics, output_dir: Path, model_name: str, method: st
             "method": method,
             "num_examples": num_examples,
             "seed": seed,
-            "metrics": metrics,
-            "results": results[:20]  # Save first 20 examples for analysis
+            "metrics": serializable_metrics,
+            "results": serializable_results
         }, f, indent=2)
     
     print(f"Results saved to: {output_file}")

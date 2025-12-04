@@ -97,10 +97,23 @@ python report_generation/scripts/evaluate_rag_integration.py \
     --use_vector_db
 ```
 
-### 6. Generate Tables and Analysis
+### 6. Generate Comprehensive Comparison Table and Graph
 
 ```bash
-# Comparison tables
+# Comprehensive comparison (all methods: ICL, Fine-tuned, Fine-tuned+RAG)
+python report_generation/scripts/generate_comprehensive_comparison.py
+```
+
+This generates:
+- `comprehensive_comparison.csv` - Overall comparison table
+- `comprehensive_comparison.md` - Markdown table
+- `comprehensive_per_task_comparison.csv` - Per-task comparison
+- `comprehensive_comparison_graph.png` - Visualization graph
+
+### 7. Generate Additional Tables and Analysis
+
+```bash
+# Comparison tables (legacy)
 python report_generation/scripts/generate_comparison_tables.py
 
 # Error analysis
@@ -123,7 +136,8 @@ After running all steps, you should have:
 ```
 data/
 ├── fine_tune.jsonl
-└── dummy_rag_dataset.jsonl  # Optional: for RAG evaluation
+├── dummy_rag_dataset.jsonl  # Optional: for RAG evaluation
+└── dummy_rag_vector_db.jsonl  # Optional: vector DB for RAG
 
 report_generation/
 ├── results/
@@ -134,17 +148,18 @@ report_generation/
 │   ├── finetuned_mistral.json
 │   ├── finetuned_gemma.json
 │   ├── rag_baseline_mistral.json
-│   ├── rag_mistral.json
+│   ├── rag_rag_mistral.json
 │   ├── rag_baseline_gemma.json
-│   ├── rag_gemma.json
+│   ├── rag_rag_gemma.json
 │   ├── rag_comparison_mistral.csv
 │   ├── rag_comparison_mistral.md
 │   ├── rag_comparison_gemma.csv
 │   └── rag_comparison_gemma.md
 └── outputs/
-    ├── overall_comparison.csv
-    ├── per_task_comparison.csv
-    ├── comparison_tables.md
+    ├── comprehensive_comparison.csv  # All methods comparison
+    ├── comprehensive_comparison.md  # Markdown table
+    ├── comprehensive_per_task_comparison.csv  # Per-task comparison
+    ├── comprehensive_comparison_graph.png  # Visualization graph
     ├── error_analysis.json
     └── error_analysis_detailed.json
 ```

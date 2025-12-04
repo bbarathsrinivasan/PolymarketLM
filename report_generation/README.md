@@ -100,10 +100,12 @@ python report_generation/scripts/generate_comparison_tables.py \
 ```
 
 This will generate:
-- `overall_comparison.csv` - Overall accuracy comparison
-- `per_task_comparison.csv` - Per-task accuracy comparison
-- `comparison_tables.md` - Markdown tables for report
-- `error_analysis.json` - Error analysis summary
+- `comprehensive_comparison.csv` - Overall accuracy comparison (all methods)
+- `comprehensive_comparison.md` - Markdown table for report
+- `comprehensive_per_task_comparison.csv` - Per-task accuracy comparison
+- `comprehensive_comparison_graph.png` - Visualization graph
+
+**Note**: This replaces the older `generate_comparison_tables.py` script with a comprehensive version that includes RAG results.
 
 ### Step 5: Run Error Analysis
 

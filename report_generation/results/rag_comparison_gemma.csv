@@ -1,0 +1,3 @@
+Method,Accuracy,Correct/Total,Perplexity
+Baseline,20.00%,1/5,1.44
+RAG,40.00%,2/5,1.44

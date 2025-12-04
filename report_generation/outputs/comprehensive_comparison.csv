@@ -1,0 +1,9 @@
+Method,Accuracy,Correct/Total,Perplexity,Accuracy_Value
+ICL Mistral Zero-shot,7.00%,14/200,N/A,0.07
+ICL Mistral Few-shot,29.50%,59/200,N/A,0.295
+ICL Gemma Zero-shot,28.50%,57/200,N/A,0.285
+ICL Gemma Few-shot,42.00%,84/200,N/A,0.42
+Fine-tuned Mistral,55.00%,110/200,1.47,0.55
+Fine-tuned Gemma,71.50%,143/200,1.50,0.715
+Fine-tuned Mistral RAG,100.00%,5/5,3.40,1.0
+Fine-tuned Gemma RAG,100.00%,5/5,3.73,1.0

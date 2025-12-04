@@ -1,0 +1,25 @@
+Method,Task,Accuracy,Count,Accuracy_Value
+ICL Mistral Zero-shot,Outcome Prediction,11.83%,93,0.11827956989247312
+ICL Mistral Zero-shot,Manipulation Detection,3.00%,100,0.03
+ICL Mistral Zero-shot,User Classification,0.00%,7,0.0
+ICL Mistral Few-shot,Outcome Prediction,8.60%,93,0.08602150537634409
+ICL Mistral Few-shot,Manipulation Detection,50.00%,100,0.5
+ICL Mistral Few-shot,User Classification,14.29%,7,0.14285714285714285
+ICL Gemma Zero-shot,Outcome Prediction,40.86%,93,0.40860215053763443
+ICL Gemma Zero-shot,Manipulation Detection,14.00%,100,0.14
+ICL Gemma Zero-shot,User Classification,71.43%,7,0.7142857142857143
+ICL Gemma Few-shot,Outcome Prediction,46.24%,93,0.46236559139784944
+ICL Gemma Few-shot,Manipulation Detection,36.00%,100,0.36
+ICL Gemma Few-shot,User Classification,71.43%,7,0.7142857142857143
+Fine-tuned Mistral,Outcome Prediction,39.78%,93,0.3978494623655914
+Fine-tuned Mistral,Manipulation Detection,66.00%,100,0.66
+Fine-tuned Mistral,User Classification,100.00%,7,1.0
+Fine-tuned Gemma,Outcome Prediction,49.46%,93,0.4946236559139785
+Fine-tuned Gemma,Manipulation Detection,90.00%,100,0.9
+Fine-tuned Gemma,User Classification,100.00%,7,1.0
+Fine-tuned Mistral RAG,Outcome Prediction,100.00%,5,1.0
+Fine-tuned Mistral RAG,Manipulation Detection,0.00%,0,0.0
+Fine-tuned Mistral RAG,User Classification,0.00%,0,0.0
+Fine-tuned Gemma RAG,Outcome Prediction,100.00%,5,1.0
+Fine-tuned Gemma RAG,Manipulation Detection,0.00%,0,0.0
+Fine-tuned Gemma RAG,User Classification,0.00%,0,0.0

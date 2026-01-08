@@ -1,75 +1,93 @@
-# Polymarket LLM
+# 🚀 Polymarket LLM
 
-Project to preprocess Polymarket datasets and fine-tune an LLM using QLoRA for prediction market analysis.
+> **🎯 AI-Powered Prediction Market Analysis**  
+> Fine-tune state-of-the-art LLMs to analyze Polymarket data and make intelligent predictions
 
-## Overview
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-Latest-orange.svg)](https://pytorch.org/)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Transformers-yellow.svg)](https://huggingface.co/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-This project fine-tunes Mistral-7B-Instruct on Polymarket data to perform three tasks:
-1. **Market Outcome Prediction**: Predict whether a market will resolve to "Yes" or "No"
-2. **Manipulation Detection**: Identify if a market experienced manipulation
-3. **User Classification**: Classify traders as "Noise Trader" or "Informed Trader"
+---
 
-## Structure
+## 📋 Overview
+
+This project fine-tunes **Mistral-7B-Instruct** and **Gemma** models on Polymarket data using **QLoRA** (Quantized Low-Rank Adaptation) to perform three critical tasks:
+
+1. **📊 Market Outcome Prediction**: Predict whether a market will resolve to "Yes" or "No"
+2. **🔍 Manipulation Detection**: Identify if a market experienced manipulation
+3. **👥 User Classification**: Classify traders as "Noise Trader" or "Informed Trader"
+
+## 📁 Project Structure
 
 ```
 polymarket-llm/
-├── data/
-│   ├── raw/               # original CSV files (trades.csv, prices.csv, etc.)
-│   ├── processed/         # intermediate data, e.g., merged by market_id
-│   └── fine_tune.jsonl    # final training dataset in JSONL format
-├── scripts/
-│   ├── preprocess_data.py      # script to convert CSVs to JSONL
-│   ├── finetune_qlora.py       # script to fine-tune the model with QLoRA (PEFT)
-│   ├── test_inference.py       # script to test inference with fine-tuned model
-│   └── create_sample_dataset.py # helper to create sample datasets for testing
-├── models/
-│   └── checkpoints/       # saved LoRA adapters or model checkpoints
-├── requirements.txt       # Python dependencies
-└── README.md              # this file
+├── 📂 data/
+│   ├── 📂 raw/               # 📄 original CSV files (trades.csv, prices.csv, etc.)
+│   ├── 📂 processed/         # 🔄 intermediate data, e.g., merged by market_id
+│   └── 📄 fine_tune.jsonl    # ✅ final training dataset in JSONL format
+├── 📂 scripts/
+│   ├── 🔧 preprocess_data.py      # Convert CSVs to JSONL
+│   ├── 🚀 finetune_qlora.py       # Fine-tune model with QLoRA (PEFT)
+│   ├── 🧪 test_inference.py       # Test inference with fine-tuned model
+│   └── 📝 create_sample_dataset.py # Create sample datasets for testing
+├── 📂 models/
+│   └── 📂 checkpoints/       # 💾 saved LoRA adapters or model checkpoints
+├── 📂 report_generation/     # 📊 Evaluation and comparison scripts
+├── 📄 requirements.txt       # 📦 Python dependencies
+└── 📖 README.md              # 📚 this file
 ```
 
-## Installation
+## 🛠️ Installation
 
-### Prerequisites
+### 📋 Prerequisites
 
-- Python 3.8+
-- CUDA-capable GPU (recommended) with at least 16GB VRAM for full training
-- For local testing, CPU or smaller GPU is acceptable
+- 🐍 **Python 3.8+**
+- 🎮 **CUDA-capable GPU** (recommended) with at least 16GB VRAM for full training
+- 💻 For local testing, CPU or smaller GPU is acceptable
 
-### Setup
+### ⚙️ Setup
 
-1. **Clone the repository** (if applicable)
+#### 1️⃣ **Clone the repository** (if applicable)
 
-2. **Install dependencies**:
+```bash
+git clone <repository-url>
+cd PolymarketLM
+```
+
+#### 2️⃣ **Install dependencies**
+
 ```bash
 pip install -r requirements.txt
 ```
 
-**Note**: If you encounter issues with `bitsandbytes`, you may need to install it separately:
-```bash
-pip install bitsandbytes
-```
+> ⚠️ **Note**: If you encounter issues with `bitsandbytes`, you may need to install it separately:
+> ```bash
+> pip install bitsandbytes
+> ```
+> 
+> For CUDA support, ensure you have the appropriate CUDA toolkit installed.
 
-For CUDA support, ensure you have the appropriate CUDA toolkit installed.
+#### 3️⃣ **Verify installation**
 
-3. **Verify installation**:
 ```bash
 python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
 ```
 
-4. **(Optional) Connect Weights & Biases for tracking**
-   - Ensure `wandb` is installed (already in `requirements.txt`, but you can run `pip install wandb` if needed)
-   - Log in once so Trainer can report metrics:
+#### 4️⃣ **(Optional) Connect Weights & Biases for tracking** 📊
 
-     ```bash
-     wandb login
-     ```
+- Ensure `wandb` is installed (already in `requirements.txt`, but you can run `pip install wandb` if needed)
+- Log in once so Trainer can report metrics:
 
-   - Configure logging by setting `report_to: wandb` (and optionally `run_name`) in `config/training_config.yaml`, or by passing `--report_to wandb --run_name <name>` via CLI. You can also set `WANDB_PROJECT` to control which project receives logs.
+  ```bash
+  wandb login
+  ```
 
-## Usage
+- Configure logging by setting `report_to: wandb` (and optionally `run_name`) in `config/training_config.yaml`, or by passing `--report_to wandb --run_name <name>` via CLI. You can also set `WANDB_PROJECT` to control which project receives logs.
 
-### 1. Data Preprocessing
+## 🚀 Usage
+
+### 1️⃣ **Data Preprocessing** 📊
 
 Convert raw CSV files into JSONL format for training:
 
@@ -78,13 +96,15 @@ python scripts/preprocess_data.py
 ```
 
 This will:
-- Load all market data from `data/raw/`
-- Create training examples for all three tasks
-- Output to `data/fine_tune.jsonl`
+- ✅ Load all market data from `data/raw/`
+- ✅ Create training examples for all three tasks
+- ✅ Output to `data/fine_tune.jsonl`
 
 **Expected output**: ~1,954 examples (474 outcome prediction, 474 manipulation detection, ~1,006 user classification)
 
-### 2. Local Testing (Dry-Run)
+---
+
+### 2️⃣ **Local Testing (Dry-Run)** 🧪
 
 Before full training, test the pipeline with a small sample:
 
@@ -102,11 +122,13 @@ python scripts/finetune_qlora.py \
 ```
 
 This will verify that:
-- Model loads correctly
-- Dataset is formatted properly
-- Training loop works without errors
+- ✅ Model loads correctly
+- ✅ Dataset is formatted properly
+- ✅ Training loop works without errors
 
-### 3. Full Fine-Tuning
+---
+
+### 3️⃣ **Full Fine-Tuning** 🎯
 
 Train the model on the full dataset:
 
@@ -120,7 +142,7 @@ python scripts/finetune_qlora.py \
     --output_dir models/checkpoints
 ```
 
-> **Using YAML config**: The script automatically reads defaults from `config/training_config.yaml`.  
+> 💡 **Using YAML config**: The script automatically reads defaults from `config/training_config.yaml`.  
 > Override values there or pass CLI arguments to supersede the config.
 
 **Training parameters**:
@@ -132,11 +154,13 @@ python scripts/finetune_qlora.py \
 - `--max_length`: Maximum sequence length (default: 512)
 
 **Expected training time**: 
-- Local GPU (RTX 3090/4090): ~2-4 hours for full dataset
-- EC2 g5.2xlarge: ~3-5 hours
-- CPU: Not recommended (will take days)
+- 🖥️ Local GPU (RTX 3090/4090): ~2-4 hours for full dataset
+- ☁️ EC2 g5.2xlarge: ~3-5 hours
+- ⚠️ CPU: Not recommended (will take days)
 
-### 4. Test Inference
+---
+
+### 4️⃣ **Test Inference** 🔮
 
 After training, test the model:
 
@@ -153,68 +177,84 @@ python scripts/test_inference.py \
     --custom_prompt "Predict the market outcome given the historical data.|Market ID: 12345\nQuestion: Will X happen?\nPrice History: 0.5, 0.6, 0.7"
 ```
 
-## Resource Requirements
+## 💻 Resource Requirements
 
-### Minimum (Local Testing)
-- **GPU**: 8GB VRAM (with 4-bit quantization)
-- **RAM**: 16GB
-- **Storage**: 20GB (for model + dataset)
+### 📊 Minimum (Local Testing)
+- 🎮 **GPU**: 8GB VRAM (with 4-bit quantization)
+- 💾 **RAM**: 16GB
+- 💿 **Storage**: 20GB (for model + dataset)
 
-### Recommended (Full Training)
-- **GPU**: 16GB+ VRAM (RTX 3090, A100, etc.)
-- **RAM**: 32GB
-- **Storage**: 50GB
+### 🚀 Recommended (Full Training)
+- 🎮 **GPU**: 16GB+ VRAM (RTX 3090, A100, etc.)
+- 💾 **RAM**: 32GB
+- 💿 **Storage**: 50GB
 
-### EC2 Instance Recommendations
-- **g5.2xlarge**: 1x A10G (24GB VRAM) - Good for training
-- **g5.4xlarge**: 1x A10G (24GB VRAM) - Better performance
-- **p3.2xlarge**: 1x V100 (16GB VRAM) - Older but cheaper
+### ☁️ EC2 Instance Recommendations
+- **g5.2xlarge**: 1x A10G (24GB VRAM) - ✅ Good for training
+- **g5.4xlarge**: 1x A10G (24GB VRAM) - ⚡ Better performance
+- **p3.2xlarge**: 1x V100 (16GB VRAM) - 💰 Older but cheaper
 
-See `EC2_SETUP.md` for detailed EC2 deployment instructions.
+> 📖 See `EC2_SETUP.md` for detailed EC2 deployment instructions.
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-### CUDA Out of Memory
+### ❌ CUDA Out of Memory
 If you encounter OOM errors:
-- Reduce `--batch_size` (try 2 or 1)
-- Increase `--gradient_accumulation_steps` to maintain effective batch size
-- Reduce `--max_length` (try 256 or 384)
-- Ensure 4-bit quantization is enabled (default)
+- ⬇️ Reduce `--batch_size` (try 2 or 1)
+- ⬆️ Increase `--gradient_accumulation_steps` to maintain effective batch size
+- ⬇️ Reduce `--max_length` (try 256 or 384)
+- ✅ Ensure 4-bit quantization is enabled (default)
 
-### Model Loading Issues
-- Verify you have internet connection (model downloads from Hugging Face)
-- Check available disk space
-- Ensure you have sufficient RAM/VRAM
+### 🔄 Model Loading Issues
+- 🌐 Verify you have internet connection (model downloads from Hugging Face)
+- 💿 Check available disk space
+- 💾 Ensure you have sufficient RAM/VRAM
 
-### Training Too Slow
-- Enable mixed precision training (fp16) - already enabled by default
-- Use a GPU with more VRAM
-- Reduce `--max_length` if sequences are shorter
-- Consider using a smaller model for testing
+### 🐌 Training Too Slow
+- ⚡ Enable mixed precision training (fp16) - already enabled by default
+- 🎮 Use a GPU with more VRAM
+- ⬇️ Reduce `--max_length` if sequences are shorter
+- 🔬 Consider using a smaller model for testing
 
-## Output
+## 📦 Output
 
 After training, you'll find:
-- **LoRA adapter**: `models/checkpoints/Polymarket-7B-LoRA/`
+- **💾 LoRA adapter**: `models/checkpoints/Polymarket-7B-LoRA/`
   - Contains only the fine-tuned adapter weights (~100-200MB)
   - Requires base model to load
-- **Training checkpoints**: `models/checkpoints/checkpoint-*/`
+- **📂 Training checkpoints**: `models/checkpoints/checkpoint-*/`
   - Intermediate checkpoints saved during training
   - Can be used to resume training
 
-## Next Steps
+---
 
-1. **Evaluate on held-out data**: Create a test set and measure accuracy
-2. **Hyperparameter tuning**: Experiment with learning rates, LoRA rank, etc.
-3. **Deploy to production**: See `EC2_SETUP.md` for deployment
-4. **Integrate with Polymarket API**: Use the fine-tuned model for real-time predictions
+## 🎯 Next Steps
 
-## License
+1. **📊 Evaluate on held-out data**: Create a test set and measure accuracy
+2. **⚙️ Hyperparameter tuning**: Experiment with learning rates, LoRA rank, etc.
+3. **🚀 Deploy to production**: See `EC2_SETUP.md` for deployment
+4. **🔌 Integrate with Polymarket API**: Use the fine-tuned model for real-time predictions
+
+---
+
+## 📄 License
 
 [Add your license here]
 
-## Acknowledgments
+---
 
-- Mistral AI for the base model
-- Hugging Face for Transformers, PEFT, and datasets libraries
-- Polymarket for the prediction market data
+## 🙏 Acknowledgments
+
+- 🤗 **Mistral AI** for the base model
+- 🤗 **Hugging Face** for Transformers, PEFT, and datasets libraries
+- 📈 **Polymarket** for the prediction market data
+
+---
+
+<div align="center">
+
+**Made with ❤️ for prediction market analysis**
+
+⭐ Star this repo if you find it helpful!
+
+</div>
